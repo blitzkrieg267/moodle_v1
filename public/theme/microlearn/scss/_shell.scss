@@ -7,42 +7,54 @@
 // ============================================================================
 
 // --- Top navbar: deep slate, app-bar feel -----------------------------------
-.navbar.fixed-top,
-nav.navbar.primary-navigation,
-.navbar {
-    background-color: var(--kreck-slate-900);
+// The core navbar is `<nav class="navbar fixed-top bg-body …">`. Bootstrap's
+// `.bg-body` sets the background with !important, so we must match it with an
+// equally-specific !important override, and lift the foreground to light.
+.navbar.fixed-top {
+    background-color: var(--kreck-slate-900) !important;
     border-bottom: 0;
     box-shadow: 0 1px 0 rgba(255, 255, 255, .04), 0 2px 10px rgba(15, 30, 46, .18);
-
-    // Foreground: logo text, links and icons sit light on slate.
     color: #e7edf3;
 
+    // Brand, links, menu toggles, plain text and the edit-mode label.
     .navbar-brand,
     .nav-link,
     .dropdown-toggle,
-    a {
+    .editmode-switch-form,
+    label,
+    a:not(.btn) {
         color: #e7edf3;
     }
 
     .nav-link:hover,
-    a:hover {
+    a:not(.btn):hover {
         color: #ffffff;
     }
 
-    // Icon buttons (search, messaging, notifications, user menu).
-    .btn.icon-no-margin,
-    .nav-link .icon {
+    // Icon-only buttons (search, messaging, notifications, drawer toggles).
+    .btn-icon,
+    .nav-link .icon,
+    .navbar-toggler {
         color: #cdd8e2;
+    }
+
+    // Keep a usable focus/hover affordance on the slate bar.
+    .btn-icon:hover,
+    .nav-link:hover .icon {
+        color: #ffffff;
+        background-color: rgba(255, 255, 255, .08);
+    }
+
+    // The site-name brand text should read confidently.
+    .navbar-brand {
+        font-weight: 700;
+        color: #ffffff;
     }
 }
 
-// Keep the dark navbar readable in dark mode too.
-[data-bs-theme="dark"] {
-    .navbar.fixed-top,
-    nav.navbar.primary-navigation,
-    .navbar {
-        background-color: #0a1420;
-    }
+// Deepen the bar further in dark mode.
+[data-bs-theme="dark"] .navbar.fixed-top {
+    background-color: #0a1420 !important;
 }
 
 // --- Drawers: clean side surfaces -------------------------------------------

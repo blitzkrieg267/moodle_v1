@@ -134,11 +134,43 @@
 }
 
 // --- Login page: branded, focused ------------------------------------------
+// The right-hand form panel sits on the slate #page, so its text must be light
+// (inputs keep white backgrounds with dark text, which stay legible).
 body#page-login-index {
     #page {
         background:
             radial-gradient(1200px 500px at 50% -10%, rgba(30, 138, 116, .18), transparent 60%),
             var(--kreck-slate-900);
+    }
+
+    .login-layout-right,
+    .login-layout-right-content {
+        color: #e7edf3;
+
+        h1, h2, h3, h4,
+        .h1, .h2, .h3,
+        label,
+        p,
+        legend {
+            color: #e7edf3;
+        }
+
+        // Secondary / helper copy a touch dimmer but still AA on slate.
+        .text-muted,
+        small,
+        .login-cookiesnotice {
+            color: #a9b7c4 !important;
+        }
+
+        // Inputs stay light surfaces with dark ink for legibility.
+        .form-control {
+            color: var(--kreck-ink);
+            background-color: #ffffff;
+        }
+
+        .form-control::placeholder {
+            color: #8fa0ad;
+        }
     }
 
     .login-container .card,
