@@ -1,0 +1,34 @@
+// ============================================================================
+// KRECK MicroLearn — typography.
+//
+// No web fonts are loaded (low-bandwidth constraint). We only tune weight,
+// tracking and heading rhythm on the inherited system/Inter stack so copy
+// reads cleanly on small screens.
+// ============================================================================
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: .1px;
+}
+
+// Confident, tight headings — the investor-deck voice.
+h1, h2, h3, .h1, .h2, .h3 {
+    font-weight: 700;
+    letter-spacing: -.01em;
+    line-height: 1.15;
+}
+
+h4, h5, h6, .h4, .h5, .h6 {
+    font-weight: 600;
+    letter-spacing: -.005em;
+}
+
+// Eyebrow / section labels used across KRECK components.
+.kreck-eyebrow {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--kreck-ink-muted);
+}

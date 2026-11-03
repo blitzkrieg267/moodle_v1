@@ -1,0 +1,32 @@
+// ============================================================================
+// KRECK MicroLearn — brand SCSS variables (compiled BEFORE Bootstrap / MDS).
+//
+// Setting these here means Bootstrap-derived components and any Moodle Design
+// System token defined as `var(--bs-*)` inherit the KRECK palette for free.
+// CSS custom-property (`--mds-*`) overrides live in _tokens.scss instead.
+// ============================================================================
+
+// --- Core brand palette -----------------------------------------------------
+// Teal drives primary actions (learning-positive); amber is the reward/accent;
+// slate is the structural tone; steel blue is the institutional/info tone.
+$primary:   #1e8a74;   // Teal   — primary interactive.
+$secondary: #16293b;   // Slate  — structural.
+$success:   #1e8a74;   // Teal   — success / completion.
+$info:      #2f6da3;   // Steel  — informational / institutional.
+$warning:   #f2a43c;   // Amber  — reward / streak / attention.
+$danger:    #c0392b;   // Red    — destructive / errors.
+
+// --- Typography -------------------------------------------------------------
+// System-first stack: zero web-font download keeps pages light on the
+// low-bandwidth mobile networks KRECK targets in Botswana and South Africa.
+// "Inter" is used only if already present on the device; otherwise the native
+// UI font is used. (No @font-face / no network request is added by the theme.)
+$font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+
+// --- Shape ------------------------------------------------------------------
+// Rounder, more app-like corners for Bootstrap components.
+$border-radius:    .75rem;
+$border-radius-sm: .5rem;
+$border-radius-lg: 1rem;
+$border-radius-xl: 1.25rem;

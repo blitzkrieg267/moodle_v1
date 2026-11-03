@@ -1,0 +1,66 @@
+// ============================================================================
+// KRECK MicroLearn — Moodle Design System (MDS) token retarget.
+//
+// This is the PRIMARY re-skin surface. Moodle 6 emits ~1,100 `--mds-*` CSS
+// custom properties into :root (and a [data-bs-theme=dark] block). Because
+// this partial is appended AFTER the core compile, re-declaring those tokens
+// at equal specificity wins the cascade — re-skinning cards, buttons, drawers,
+// forms, tables and activity chips consistently, without per-selector hacks,
+// and without editing core or Boost (upgrade-safe).
+// ============================================================================
+
+:root {
+    // --- KRECK reference palette (used by our own components too) -----------
+    --kreck-slate-900: #0f1e2e;
+    --kreck-slate-800: #16293b;
+    --kreck-slate-700: #1f374d;
+    --kreck-teal:      #1e8a74;
+    --kreck-teal-600:  #1a7c68;
+    --kreck-teal-700:  #166a59;
+    --kreck-teal-050:  #e8f4f1;
+    --kreck-amber:     #f2a43c;
+    --kreck-amber-600: #e0912a;
+    --kreck-amber-050: #fdf1df;
+    --kreck-steel:     #2f6da3;
+    --kreck-surface:        #ffffff;
+    --kreck-surface-subtle: #f5f7fa;
+    --kreck-ink:        #13212e;
+    --kreck-ink-muted:  #5a6b7b;
+
+    // --- Primary interactive (teal) -----------------------------------------
+    --mds-bg-interactive-primary-default:       var(--kreck-teal);
+    --mds-bg-interactive-primary-hover:         var(--kreck-teal-600);
+    --mds-bg-interactive-primary-active:        var(--kreck-teal-700);
+    --mds-bg-interactive-primary-default-light: var(--kreck-teal-050);
+    --mds-border-interactive-primary-default:   var(--kreck-teal);
+    --mds-border-interactive-primary-hover:     var(--kreck-teal-600);
+    --mds-border-interactive-primary-active:    var(--kreck-teal-700);
+
+    // --- Links --------------------------------------------------------------
+    --mds-text-link-primary-default: var(--kreck-teal-700);
+    --mds-text-link-primary-hover:   var(--kreck-teal);
+
+    // --- Surfaces -----------------------------------------------------------
+    // Soft off-white page background for the spacious, SaaS-like feel.
+    --mds-bg-surface-subtle: var(--kreck-surface-subtle);
+
+    // --- Shape: rounder, app-like corners -----------------------------------
+    --mds-border-radius-xs:  4px;
+    --mds-border-radius-sm:  8px;
+    --mds-border-radius-md:  12px;
+    --mds-border-radius-lg:  16px;
+    --mds-border-radius-xl:  20px;
+}
+
+// --- Dark mode --------------------------------------------------------------
+// Keep the brand hues but lift them slightly for contrast on deep slate.
+[data-bs-theme="dark"] {
+    --kreck-surface:        #0f1e2e;
+    --kreck-surface-subtle: #0c1826;
+
+    --mds-bg-interactive-primary-default: #26a085;
+    --mds-bg-interactive-primary-hover:   #2fb296;
+    --mds-bg-interactive-primary-active:  var(--kreck-teal);
+    --mds-text-link-primary-default:      #5fd3b7;
+    --mds-text-link-primary-hover:        #7ee0c8;
+}

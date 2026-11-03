@@ -1,0 +1,149 @@
+// ============================================================================
+// KRECK MicroLearn — component polish (de-"Moodle-ism" pass).
+//
+// Softens the generic Moodle look into card-based, spacious, app-like UI.
+// All additive; no structural selectors are removed or repositioned.
+// ============================================================================
+
+// --- Cards: the core SaaS primitive -----------------------------------------
+.card,
+.block,
+.dashboard-card,
+.course-card {
+    border: 1px solid rgba(15, 30, 46, .07);
+    border-radius: var(--mds-border-radius-lg);
+    box-shadow: 0 1px 2px rgba(15, 30, 46, .04), 0 6px 18px rgba(15, 30, 46, .05);
+    background-color: var(--kreck-surface);
+}
+
+.card-body {
+    padding: 1.25rem 1.35rem;
+}
+
+// Blocks: de-emphasise the old heavy block chrome.
+.block {
+    .card-title,
+    .block-header {
+        font-weight: 700;
+        letter-spacing: -.005em;
+    }
+
+    .card-body {
+        padding: 1.1rem 1.2rem;
+    }
+}
+
+// --- Buttons: confident, pill-ish primary action ----------------------------
+.btn {
+    border-radius: var(--mds-border-radius-pill);
+    font-weight: 600;
+    padding-inline: 1.1rem;
+}
+
+.btn-primary {
+    background-color: var(--kreck-teal);
+    border-color: var(--kreck-teal);
+
+    &:hover,
+    &:focus {
+        background-color: var(--kreck-teal-600);
+        border-color: var(--kreck-teal-600);
+    }
+
+    &:active {
+        background-color: var(--kreck-teal-700);
+        border-color: var(--kreck-teal-700);
+    }
+}
+
+// Amber accent button for rewards / streak / highlight CTAs.
+.btn-accent,
+.btn-kreck-accent {
+    background-color: var(--kreck-amber);
+    border-color: var(--kreck-amber);
+    color: var(--kreck-slate-900);
+
+    &:hover,
+    &:focus {
+        background-color: var(--kreck-amber-600);
+        border-color: var(--kreck-amber-600);
+        color: var(--kreck-slate-900);
+    }
+}
+
+// --- Badges / pills ---------------------------------------------------------
+.badge {
+    border-radius: var(--mds-border-radius-pill);
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
+// Streak / reward chip (used by MicroLearn learner views).
+.kreck-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .7rem;
+    border-radius: var(--mds-border-radius-pill);
+    background-color: var(--kreck-amber-050);
+    color: #8a5a12;
+    font-weight: 600;
+    font-size: .82rem;
+}
+
+// --- Tables: lighten the zebra / grid "Moodle-ism" --------------------------
+.table {
+    border-color: rgba(15, 30, 46, .06);
+
+    thead th {
+        border-bottom: 1px solid rgba(15, 30, 46, .1);
+        font-size: .78rem;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: var(--kreck-ink-muted);
+    }
+
+    td,
+    th {
+        border-top-color: rgba(15, 30, 46, .05);
+        padding-block: .75rem;
+    }
+}
+
+// --- Forms: calmer inputs ---------------------------------------------------
+.form-control,
+.custom-select,
+.form-select {
+    border-radius: var(--mds-border-radius-md);
+    border-color: rgba(15, 30, 46, .15);
+
+    &:focus {
+        border-color: var(--kreck-teal);
+        box-shadow: 0 0 0 .2rem rgba(30, 138, 116, .18);
+    }
+}
+
+// --- Activity cards / course content ----------------------------------------
+.activity-item,
+.course-content .section .activity {
+    border-radius: var(--mds-border-radius-md);
+
+    &:hover {
+        background-color: var(--kreck-teal-050);
+    }
+}
+
+// --- Login page: branded, focused ------------------------------------------
+body#page-login-index {
+    #page {
+        background:
+            radial-gradient(1200px 500px at 50% -10%, rgba(30, 138, 116, .18), transparent 60%),
+            var(--kreck-slate-900);
+    }
+
+    .login-container .card,
+    .login-wrapper .card {
+        border: 0;
+        box-shadow: 0 20px 60px rgba(8, 18, 30, .45);
+    }
+}

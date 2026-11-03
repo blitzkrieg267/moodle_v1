@@ -1,0 +1,87 @@
+// ============================================================================
+// KRECK MicroLearn — app shell (top navbar, drawers, footer).
+//
+// Conservative, additive overrides on well-known Moodle/Boost structural
+// classes. No layout geometry is changed — only surface, colour and depth —
+// so behaviour and responsiveness stay intact.
+// ============================================================================
+
+// --- Top navbar: deep slate, app-bar feel -----------------------------------
+.navbar.fixed-top,
+nav.navbar.primary-navigation,
+.navbar {
+    background-color: var(--kreck-slate-900);
+    border-bottom: 0;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .04), 0 2px 10px rgba(15, 30, 46, .18);
+
+    // Foreground: logo text, links and icons sit light on slate.
+    color: #e7edf3;
+
+    .navbar-brand,
+    .nav-link,
+    .dropdown-toggle,
+    a {
+        color: #e7edf3;
+    }
+
+    .nav-link:hover,
+    a:hover {
+        color: #ffffff;
+    }
+
+    // Icon buttons (search, messaging, notifications, user menu).
+    .btn.icon-no-margin,
+    .nav-link .icon {
+        color: #cdd8e2;
+    }
+}
+
+// Keep the dark navbar readable in dark mode too.
+[data-bs-theme="dark"] {
+    .navbar.fixed-top,
+    nav.navbar.primary-navigation,
+    .navbar {
+        background-color: #0a1420;
+    }
+}
+
+// --- Drawers: clean side surfaces -------------------------------------------
+.drawer {
+    background-color: var(--kreck-surface);
+    border-right: 1px solid rgba(15, 30, 46, .08);
+    box-shadow: none;
+
+    &.drawer-right {
+        border-right: 0;
+        border-left: 1px solid rgba(15, 30, 46, .08);
+    }
+}
+
+// Course index / nav drawer entries: softer, rounded hover targets.
+.drawer .list-group-item,
+.courseindex .courseindex-item {
+    border: 0;
+    border-radius: var(--mds-border-radius-sm);
+
+    &:hover {
+        background-color: var(--kreck-teal-050);
+    }
+}
+
+// --- Page background --------------------------------------------------------
+body,
+#page {
+    background-color: var(--kreck-surface-subtle);
+}
+
+// --- Footer: quiet, grounded ------------------------------------------------
+#page-footer,
+.footer-content-popover,
+footer.footer {
+    background-color: var(--kreck-slate-900);
+    color: #aab8c4;
+
+    a {
+        color: #cdd8e2;
+    }
+}
