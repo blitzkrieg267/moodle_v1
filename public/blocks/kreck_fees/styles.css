@@ -1,0 +1,57 @@
+/* KRECK fees block. Hero colour follows fee status; KRECK fallbacks keep it
+   looking right under stock Boost. */
+
+.block_kreck_fees .card-text { padding: 0; }
+
+.kreckfees { display: flex; flex-direction: column; gap: .8rem; }
+
+.kreckfees-hero {
+    padding: 1.1rem 1.15rem 1rem;
+    border-radius: var(--mds-border-radius-lg, 16px);
+    color: #fff;
+    background: var(--kreck-slate-900, #0f1e2e);
+}
+.kreckfees-hero--ok   { background: linear-gradient(135deg, #1e8a74, #166a59); }
+.kreckfees-hero--warn { background: linear-gradient(135deg, #16293b 20%, #a9681a); }
+.kreckfees-hero--bad  { background: linear-gradient(135deg, #16293b 20%, #9a2c20); }
+
+.kreckfees-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; opacity: .85;
+}
+.kreckfees-amount {
+    font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em;
+    margin-top: .2rem; font-variant-numeric: tabular-nums;
+}
+.kreckfees-pill {
+    display: inline-block; margin-top: .55rem;
+    padding: .18rem .6rem; border-radius: 999px;
+    font-size: .74rem; font-weight: 700;
+    background: rgba(255, 255, 255, .18);
+}
+
+.kreckfees-reminder {
+    font-size: .82rem; font-weight: 600;
+    color: #9a2c20;
+    background: rgba(192, 57, 43, .1);
+    border-radius: var(--mds-border-radius-md, 12px);
+    padding: .5rem .7rem;
+}
+
+.kreckfees-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.kreckfees-stat {
+    display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+    padding-bottom: .5rem; border-bottom: 1px solid rgba(15, 30, 46, .08);
+}
+.kreckfees-stat:last-child { border-bottom: 0; padding-bottom: 0; }
+.kreckfees-stat-label {
+    font-size: .78rem; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--kreck-ink-muted, #5a6b7b);
+}
+.kreckfees-stat-value { font-weight: 700; color: var(--kreck-ink, #13212e); }
+
+.kreckfees-empty { font-size: .9rem; color: var(--kreck-ink-muted, #5a6b7b); }
+
+[data-bs-theme="dark"] .kreckfees-stat { border-bottom-color: rgba(255, 255, 255, .1); }
+[data-bs-theme="dark"] .kreckfees-stat-value { color: #e7edf3; }
+[data-bs-theme="dark"] .kreckfees-reminder { color: #f3b0a7; }

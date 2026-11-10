@@ -41,6 +41,40 @@ $string['attendancewindow_desc'] = 'How many recent days the learner attendance 
 $string['feegatesapp'] = 'Let fee status gate app access';
 $string['feegatesapp_desc'] = 'If enabled, a school may restrict learning-app access based on fee status. Off by default; this is a school-level policy decision.';
 
+// Fee status labels (shared by the seed form).
+$string['feestatus_current'] = 'Up to date';
+$string['feestatus_overdue'] = 'Overdue';
+$string['feestatus_paid'] = 'Paid';
+$string['feestatus_failed'] = 'Payment failed';
+
+// Seed tool.
+$string['seedpage'] = 'Seed KRECK sample data';
+$string['seed_intro'] = 'Put sample attendance, fee, streak and topic data onto a learner so the KRECK dashboards and blocks populate without the live SMS feed. This is a testing tool.';
+$string['seed_identity'] = 'Learner';
+$string['seed_username'] = 'Username';
+$string['seed_username_help'] = 'The username of the Moodle user to put sample KRECK data on. Use your own admin username to see the cards populate on your dashboard.';
+$string['seed_studentid'] = 'Student ID (optional)';
+$string['seed_classname'] = 'Class (optional)';
+$string['seed_engagement'] = 'Streak';
+$string['seed_streakcurrent'] = 'Current streak (days)';
+$string['seed_streaklongest'] = 'Longest streak (days)';
+$string['seed_attendance'] = 'Attendance';
+$string['seed_attendancetotal'] = 'Session days to generate';
+$string['seed_attendancepresent'] = 'Of those, days present';
+$string['seed_fees'] = 'Fees';
+$string['seed_feebalance'] = 'Balance (major units, e.g. 450.00)';
+$string['seed_feecurrency'] = 'Currency code';
+$string['seed_feestatus'] = 'Fee status';
+$string['seed_topic'] = 'Focus topic';
+$string['seed_topicname'] = 'Topic name';
+$string['seed_topicattempts'] = 'Attempts';
+$string['seed_topicwrong'] = 'Wrong answers';
+$string['seed_submit'] = 'Seed data';
+$string['seed_done'] = 'Sample KRECK data saved for {$a}.';
+$string['seed_nouser'] = 'No active user has that username.';
+$string['seed_presenttoohigh'] = 'Days present cannot exceed the number of session days.';
+$string['seed_wrongtoohigh'] = 'Wrong answers cannot exceed attempts.';
+
 // Privacy.
 $string['privacy:metadata:local_kreck_student'] = 'The lifelong KRECK student record linking a user to their student ID, school and class.';
 $string['privacy:metadata:local_kreck_student:userid'] = 'The user the record belongs to.';

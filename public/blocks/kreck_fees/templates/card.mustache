@@ -1,0 +1,61 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_kreck_fees/card
+
+    Parent-facing fee-status card. The hero colour follows the status.
+
+    Example context (json):
+    {
+        "hasaccount": true, "amount": "450.00", "currency": "BWP",
+        "statuslabel": "Overdue", "statusmod": "warn", "isoverdue": true,
+        "ispaidup": false, "hasattendance": true, "attendancepct": 96,
+        "hasstudentid": true, "studentid": "KR-00912"
+    }
+}}
+<div class="kreckfees">
+    {{#hasaccount}}
+    <div class="kreckfees-hero kreckfees-hero--{{statusmod}}">
+        <div class="kreckfees-label">{{#ispaidup}}{{#str}}balance, block_kreck_fees{{/str}}{{/ispaidup}}{{^ispaidup}}{{#str}}amountdue, block_kreck_fees{{/str}}{{/ispaidup}}</div>
+        <div class="kreckfees-amount">{{currency}} {{amount}}</div>
+        <span class="kreckfees-pill kreckfees-pill--{{statusmod}}">{{statuslabel}}</span>
+    </div>
+
+    {{#isoverdue}}
+    <div class="kreckfees-reminder">{{#str}}reminder, block_kreck_fees{{/str}}</div>
+    {{/isoverdue}}
+
+    <ul class="kreckfees-stats">
+        {{#hasattendance}}
+        <li class="kreckfees-stat">
+            <span class="kreckfees-stat-label">{{#str}}attendance, block_kreck_fees{{/str}}</span>
+            <span class="kreckfees-stat-value">{{attendancepct}}%</span>
+        </li>
+        {{/hasattendance}}
+        {{#hasstudentid}}
+        <li class="kreckfees-stat">
+            <span class="kreckfees-stat-label">{{#str}}studentid, block_kreck_fees{{/str}}</span>
+            <span class="kreckfees-stat-value">{{studentid}}</span>
+        </li>
+        {{/hasstudentid}}
+    </ul>
+    {{/hasaccount}}
+
+    {{^hasaccount}}
+    <div class="kreckfees-empty">{{#str}}noaccount, block_kreck_fees{{/str}}</div>
+    {{/hasaccount}}
+</div>

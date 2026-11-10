@@ -62,3 +62,12 @@ if ($hassiteconfig) {
         0
     ));
 }
+
+// Admin tool: seed sample KRECK data onto a learner (capability-gated, so a
+// manager with local/kreck:manage can reach it without full site config).
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_seed',
+    get_string('seedpage', 'local_kreck'),
+    new moodle_url('/local/kreck/seed.php'),
+    'local/kreck:manage'
+));
