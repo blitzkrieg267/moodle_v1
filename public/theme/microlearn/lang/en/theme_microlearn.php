@@ -44,6 +44,46 @@ $string['rawscsspre_desc'] = 'SCSS injected before the main styles compile. Use 
 $string['rawscss'] = 'Raw SCSS';
 $string['rawscss_desc'] = 'SCSS appended after all other styles, including the theme defaults. Use it for final overrides.';
 
+// Role dashboards.
+$string['dash_hi'] = 'Hi, {$a}';
+$string['dash_school'] = 'Your school';
+$string['dash_eyebrow_learner'] = 'Your learning';
+$string['dash_eyebrow_teacher'] = 'Your classes';
+$string['dash_eyebrow_parent'] = 'Your child';
+$string['dash_eyebrow_institution'] = 'Institution';
+$string['dash_learner_sub'] = 'Keep your streak going and pick up where you left off.';
+$string['dash_teacher_sub'] = 'Your classes at a glance, and where learners are struggling.';
+$string['dash_parent_sub'] = 'Your child\'s attendance, fees and learning.';
+$string['dash_institution_sub'] = 'Attendance, fees and app activity across the school.';
+$string['dash_daystreak'] = 'day streak';
+$string['dash_best'] = 'Best {$a}';
+$string['dash_attendance'] = 'Attendance';
+$string['dash_focus'] = 'Focus topic';
+$string['dash_fees'] = 'Fees';
+$string['dash_streak'] = 'Streak';
+$string['dash_wrong_short'] = 'wrong';
+$string['dash_keeplearning'] = 'Keep learning';
+$string['dash_feereminder'] = 'A payment of {$a} is due. Please settle it or contact the office.';
+$string['dash_classes'] = 'Classes';
+$string['dash_learners'] = 'Learners';
+$string['dash_avgattendance'] = 'Avg attendance';
+$string['dash_struggle_title'] = 'Where your class is struggling';
+$string['dash_struggle_title_school'] = 'Where learners struggle most';
+$string['dash_struggle_empty'] = 'No topic data yet. It appears as learners complete quizzes.';
+$string['dash_totallearners'] = 'Learners';
+$string['dash_feesoverdue'] = 'Fees overdue';
+$string['dash_appactive'] = 'Active on app';
+$string['dash_parent_focus'] = 'Could use support with {$a} at home.';
+$string['dash_parent_nochild'] = 'No child is linked to your account yet. Ask the school to connect your child\'s record.';
+$string['dash_manage'] = 'Administration';
+$string['dash_reports'] = 'Reports';
+
+// Fee status labels (used by the parent dashboard).
+$string['feestatus_current'] = 'Up to date';
+$string['feestatus_overdue'] = 'Overdue';
+$string['feestatus_paid'] = 'Paid';
+$string['feestatus_failed'] = 'Payment failed';
+
 // Block regions (inherited drawers layouts use side-pre).
 $string['region-side-pre'] = 'Right';
 

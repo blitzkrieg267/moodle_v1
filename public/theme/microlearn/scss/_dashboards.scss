@@ -1,0 +1,131 @@
+// ============================================================================
+// KRECK MicroLearn — role dashboards (learner / teacher / parent / institution).
+// Block-free, card-based layouts rendered by the mydashboard layout.
+// ============================================================================
+
+.kd {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    max-width: 1040px;
+    margin-block: .5rem 1.5rem;
+}
+
+.kd-head { display: flex; flex-direction: column; gap: .25rem; }
+.kd-eyebrow {
+    display: inline-flex; align-items: center; gap: .45rem;
+    font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--kreck-ink-muted, #5a6b7b); margin: 0;
+}
+.kd-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--kreck-amber, #f2a43c); }
+.kd-title { font-size: clamp(1.5rem, 3.4vw, 2.1rem); font-weight: 800; letter-spacing: -.02em; margin: 0; }
+.kd-sub { color: var(--kreck-ink-muted, #5a6b7b); margin: 0; }
+
+// --- Streak hero (learner) --------------------------------------------------
+.kd-hero {
+    display: flex; align-items: center; gap: .9rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--mds-border-radius-xl, 20px);
+    color: #fff;
+    background:
+        radial-gradient(160px 100px at 88% -30%, rgba(242, 164, 60, .45), transparent 70%),
+        var(--kreck-slate-900, #0f1e2e);
+}
+.kd-flame {
+    display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+    color: var(--kreck-amber, #f2a43c); background: rgba(242, 164, 60, .16); flex: none;
+}
+.kd-hero-num { font-size: 2.2rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
+.kd-hero-unit { font-size: .82rem; color: #c3cdd6; margin-top: .2rem; }
+.kd-hero-side {
+    margin-left: auto; font-size: .72rem; font-weight: 700; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--kreck-amber, #f2a43c);
+}
+
+// --- Tiles ------------------------------------------------------------------
+.kd-tiles { display: grid; gap: 1rem; }
+.kd-tiles--2 { grid-template-columns: repeat(2, 1fr); }
+.kd-tiles--3 { grid-template-columns: repeat(3, 1fr); }
+.kd-tiles--4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 720px) {
+    .kd-tiles--3, .kd-tiles--4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 420px) {
+    .kd-tiles--2, .kd-tiles--3, .kd-tiles--4 { grid-template-columns: 1fr; }
+}
+
+.kd-tile {
+    background: var(--kreck-surface, #fff);
+    border: 1px solid var(--kreck-border, rgba(15, 30, 46, .08));
+    border-radius: var(--mds-border-radius-lg, 16px);
+    padding: 1rem 1.1rem;
+    box-shadow: 0 1px 2px rgba(15, 30, 46, .04), 0 6px 18px rgba(15, 30, 46, .05);
+}
+.kd-tile-label { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: var(--kreck-ink-muted, #5a6b7b); }
+.kd-tile-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; color: var(--kreck-ink, #13212e); font-variant-numeric: tabular-nums; }
+.kd-tile-value--sm { font-size: 1.15rem; }
+.kd-tile-sub { font-size: .8rem; color: var(--kreck-ink-muted, #5a6b7b); margin-top: .1rem; }
+.kd-sub--warn { color: #a9681a; font-weight: 700; }
+.kd-tile--stat .kd-tile-value { margin-bottom: .1rem; }
+
+// --- Section + struggle list ------------------------------------------------
+.kd-section {
+    background: var(--kreck-surface, #fff);
+    border: 1px solid var(--kreck-border, rgba(15, 30, 46, .08));
+    border-radius: var(--mds-border-radius-lg, 16px);
+    padding: 1.1rem 1.25rem 1.25rem;
+    box-shadow: 0 1px 2px rgba(15, 30, 46, .04), 0 6px 18px rgba(15, 30, 46, .05);
+}
+.kd-section-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 .9rem; }
+
+.kd-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .7rem; }
+.kd-list-row { display: grid; grid-template-columns: minmax(90px, 1fr) 2fr auto; align-items: center; gap: .8rem; }
+.kd-list-label { font-weight: 600; min-width: 0; }
+.kd-list-value { font-weight: 700; font-variant-numeric: tabular-nums; color: #9a2c20; }
+.kd-bar { height: 8px; border-radius: 999px; background: rgba(15, 30, 46, .08); overflow: hidden; }
+.kd-bar-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f2a43c, #c0392b); }
+@media (max-width: 560px) {
+    .kd-list-row { grid-template-columns: 1fr auto; }
+    .kd-list-row .kd-bar { display: none; }
+}
+
+// --- Lessons (learner) ------------------------------------------------------
+.kd-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.kd-lesson a {
+    display: block; padding: .85rem 1rem;
+    border: 1px solid var(--kreck-border, rgba(15, 30, 46, .08));
+    border-radius: var(--mds-border-radius-md, 12px);
+    font-weight: 600; text-decoration: none; color: var(--kreck-ink, #13212e);
+    background: var(--kreck-surface-subtle, #f5f7fa);
+}
+.kd-lesson a:hover { background: var(--kreck-teal-050, #e8f4f1); color: var(--kreck-teal-700, #166a59); }
+
+// --- Notes / empties --------------------------------------------------------
+.kd-note { font-size: .85rem; font-weight: 600; padding: .65rem .85rem; border-radius: var(--mds-border-radius-md, 12px); }
+.kd-note--warn { color: #8a5a12; background: var(--kreck-amber-050, #fdf1df); }
+.kd-empty { color: var(--kreck-ink-muted, #5a6b7b); margin: 0; }
+.kd-empty--card {
+    background: var(--kreck-surface, #fff); border: 1px dashed var(--kreck-border, rgba(15, 30, 46, .15));
+    border-radius: var(--mds-border-radius-lg, 16px); padding: 1.5rem 1.25rem; text-align: center;
+}
+
+// --- Parent child card ------------------------------------------------------
+.kd-childcard { display: flex; flex-direction: column; gap: 1rem; }
+.kd-childcard-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -.01em; }
+.kd-childnote { color: var(--kreck-ink-muted, #5a6b7b); margin: 0; }
+
+// --- Institution quick links ------------------------------------------------
+.kd-links { display: flex; flex-wrap: wrap; gap: .6rem; }
+.kd-link {
+    padding: .5rem .95rem; border-radius: 999px; font-weight: 600; text-decoration: none;
+    color: #fff; background: var(--kreck-teal, #1e8a74);
+}
+.kd-link:hover { background: var(--kreck-teal-600, #1a7c68); color: #fff; }
+
+// Dark mode tweaks.
+[data-bs-theme="dark"] {
+    .kd-tile, .kd-section { background: #13222f; border-color: rgba(255, 255, 255, .08); }
+    .kd-tile-value, .kd-childcard-name { color: #e7edf3; }
+    .kd-bar { background: rgba(255, 255, 255, .1); }
+    .kd-lesson a { background: #0f1c28; color: #e7edf3; }
+}

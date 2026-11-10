@@ -1,0 +1,42 @@
+{{!
+    @template theme_microlearn/dashboard/parent
+
+    KRECK parent dashboard: one child's attendance, fees and progress.
+}}
+<section class="kd kd-parent">
+    <header class="kd-head">
+        <p class="kd-eyebrow"><span class="kd-dot"></span>{{#str}}dash_eyebrow_parent, theme_microlearn{{/str}}</p>
+        <h2 class="kd-title">{{greeting}}</h2>
+        <p class="kd-sub">{{subtitle}}</p>
+    </header>
+
+    {{#haschild}}
+    <div class="kd-childcard">
+        <div class="kd-childcard-name">{{childname}}</div>
+        <div class="kd-tiles kd-tiles--3">
+            {{#hasattendance}}
+            <div class="kd-tile">
+                <div class="kd-tile-label">{{#str}}dash_attendance, theme_microlearn{{/str}}</div>
+                <div class="kd-tile-value">{{attendancepct}}%</div>
+            </div>
+            {{/hasattendance}}
+            <div class="kd-tile">
+                <div class="kd-tile-label">{{#str}}dash_fees, theme_microlearn{{/str}}</div>
+                <div class="kd-tile-value kd-tile-value--sm">{{feecurrency}} {{feeamount}}</div>
+                <div class="kd-tile-sub {{#feeoverdue}}kd-sub--warn{{/feeoverdue}}">{{feestatus}}</div>
+            </div>
+            <div class="kd-tile">
+                <div class="kd-tile-label">{{#str}}dash_streak, theme_microlearn{{/str}}</div>
+                <div class="kd-tile-value">{{streakcurrent}}</div>
+            </div>
+        </div>
+        {{#hasstruggle}}
+        <p class="kd-childnote">{{#str}}dash_parent_focus, theme_microlearn, {{focustopic}}{{/str}}</p>
+        {{/hasstruggle}}
+    </div>
+    {{/haschild}}
+
+    {{^haschild}}
+    <div class="kd-empty kd-empty--card">{{#str}}dash_parent_nochild, theme_microlearn{{/str}}</div>
+    {{/haschild}}
+</section>

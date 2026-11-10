@@ -1,0 +1,44 @@
+{{!
+    @template theme_microlearn/dashboard/institution
+
+    KRECK institution dashboard: whole-school roll-up and quick links.
+}}
+<section class="kd kd-institution">
+    <header class="kd-head">
+        <p class="kd-eyebrow"><span class="kd-dot"></span>{{#str}}dash_eyebrow_institution, theme_microlearn{{/str}}</p>
+        <h2 class="kd-title">{{greeting}}</h2>
+        <p class="kd-sub">{{subtitle}}</p>
+    </header>
+
+    <div class="kd-tiles kd-tiles--4">
+        {{#tiles}}
+        <div class="kd-tile kd-tile--stat">
+            <div class="kd-tile-value">{{value}}</div>
+            <div class="kd-tile-label">{{label}}</div>
+        </div>
+        {{/tiles}}
+    </div>
+
+    <section class="kd-section">
+        <h3 class="kd-section-title">{{#str}}dash_struggle_title_school, theme_microlearn{{/str}}</h3>
+        {{#hasstruggle}}
+        <ul class="kd-list">
+            {{#struggletopics}}
+            <li class="kd-list-row">
+                <span class="kd-list-label">{{topic}}</span>
+                <span class="kd-bar"><span class="kd-bar-fill" style="width: {{pct}}%"></span></span>
+                <span class="kd-list-value">{{pct}}%</span>
+            </li>
+            {{/struggletopics}}
+        </ul>
+        {{/hasstruggle}}
+        {{^hasstruggle}}
+        <p class="kd-empty">{{#str}}dash_struggle_empty, theme_microlearn{{/str}}</p>
+        {{/hasstruggle}}
+    </section>
+
+    <div class="kd-links">
+        <a class="kd-link" href="{{adminurl}}">{{#str}}dash_manage, theme_microlearn{{/str}}</a>
+        <a class="kd-link" href="{{reporturl}}">{{#str}}dash_reports, theme_microlearn{{/str}}</a>
+    </div>
+</section>

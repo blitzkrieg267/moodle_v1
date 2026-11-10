@@ -87,7 +87,7 @@ function theme_microlearn_get_extra_scss($theme) {
 
     // 1. KRECK partials first, concatenated directly (not via @import) so
     //    inclusion never depends on SASS import-path resolution.
-    $partials = ['tokens', 'typography', 'shell', 'components'];
+    $partials = ['tokens', 'typography', 'shell', 'components', 'dashboards'];
     foreach ($partials as $partial) {
         $file = __DIR__ . "/scss/_{$partial}.scss";
         if (is_readable($file)) {

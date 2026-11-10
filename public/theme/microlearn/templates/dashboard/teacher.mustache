@@ -1,0 +1,39 @@
+{{!
+    @template theme_microlearn/dashboard/teacher
+
+    KRECK teacher dashboard: class size and topic-struggle roll-up.
+}}
+<section class="kd kd-teacher">
+    <header class="kd-head">
+        <p class="kd-eyebrow"><span class="kd-dot"></span>{{#str}}dash_eyebrow_teacher, theme_microlearn{{/str}}</p>
+        <h2 class="kd-title">{{greeting}}</h2>
+        <p class="kd-sub">{{subtitle}}</p>
+    </header>
+
+    <div class="kd-tiles kd-tiles--3">
+        {{#tiles}}
+        <div class="kd-tile">
+            <div class="kd-tile-label">{{label}}</div>
+            <div class="kd-tile-value">{{value}}</div>
+        </div>
+        {{/tiles}}
+    </div>
+
+    <section class="kd-section">
+        <h3 class="kd-section-title">{{#str}}dash_struggle_title, theme_microlearn{{/str}}</h3>
+        {{#hasstruggle}}
+        <ul class="kd-list">
+            {{#struggletopics}}
+            <li class="kd-list-row">
+                <span class="kd-list-label">{{topic}}</span>
+                <span class="kd-bar"><span class="kd-bar-fill" style="width: {{pct}}%"></span></span>
+                <span class="kd-list-value">{{pct}}%</span>
+            </li>
+            {{/struggletopics}}
+        </ul>
+        {{/hasstruggle}}
+        {{^hasstruggle}}
+        <p class="kd-empty">{{#str}}dash_struggle_empty, theme_microlearn{{/str}}</p>
+        {{/hasstruggle}}
+    </section>
+</section>

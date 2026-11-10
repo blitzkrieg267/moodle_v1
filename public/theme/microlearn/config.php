@@ -64,5 +64,37 @@ $THEME->activityheaderconfig = [
     'notitle' => true,
 ];
 
-// Layouts are inherited from Boost (drawers-based, responsive). Role-specific
-// layouts (e.g. a bespoke mydashboard) will be registered here in a later phase.
+// Layouts. A child theme's $THEME->layouts replaces (does not merge with) the
+// parent's, so we reproduce Boost's drawers-based set and point only the
+// dashboard at our role-aware layout file.
+$THEME->layouts = [
+    'base' => ['file' => 'drawers.php', 'regions' => []],
+    'standard' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'course' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre',
+        'options' => ['langmenu' => true]],
+    'coursecategory' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'incourse' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'frontpage' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre',
+        'options' => ['nonavbar' => true]],
+    'admin' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'mycourses' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre',
+        'options' => ['nonavbar' => true]],
+    // KRECK role-aware dashboard.
+    'mydashboard' => ['file' => 'mydashboard.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre',
+        'options' => ['nonavbar' => true, 'langmenu' => true]],
+    'mypublic' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'login' => ['file' => 'login.php', 'regions' => [], 'options' => ['langmenu' => true]],
+    'popup' => ['file' => 'columns1.php', 'regions' => [],
+        'options' => ['nofooter' => true, 'nonavbar' => true,
+            'activityheader' => ['notitle' => true, 'nocompletion' => true, 'nodescription' => true]]],
+    'frametop' => ['file' => 'columns1.php', 'regions' => [],
+        'options' => ['nofooter' => true, 'nocoursefooter' => true, 'activityheader' => ['nocompletion' => true]]],
+    'embedded' => ['file' => 'embedded.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'maintenance' => ['file' => 'maintenance.php', 'regions' => []],
+    'print' => ['file' => 'columns1.php', 'regions' => [],
+        'options' => ['nofooter' => true, 'nonavbar' => false, 'noactivityheader' => true]],
+    'redirect' => ['file' => 'embedded.php', 'regions' => []],
+    'report' => ['file' => 'drawers.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre'],
+    'secure' => ['file' => 'secure.php', 'regions' => ['side-pre'], 'defaultregion' => 'side-pre',
+        'options' => ['activityheader' => ['notitle' => false]]],
+];

@@ -1,0 +1,56 @@
+{{!
+    @template theme_microlearn/dashboard/learner
+
+    KRECK learner dashboard: streak, quick stats and "keep learning".
+}}
+<section class="kd kd-learner">
+    <header class="kd-head">
+        <p class="kd-eyebrow"><span class="kd-dot"></span>{{#str}}dash_eyebrow_learner, theme_microlearn{{/str}}</p>
+        <h2 class="kd-title">{{greeting}}</h2>
+        <p class="kd-sub">{{subtitle}}</p>
+    </header>
+
+    <div class="kd-hero kd-hero--streak">
+        <div class="kd-flame" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                <path d="M12 2c.6 3-1.5 4.4-2.8 5.9C8 9.2 7 10.6 7 12.5A5 5 0 0 0 17 13c0-1.7-.7-3-1.6-4.2.3 1-.2 2-1 2.6.3-2-.7-4-2.4-5.3C10.8 5 12.5 3.6 12 2z"/>
+            </svg>
+        </div>
+        <div class="kd-hero-text">
+            <div class="kd-hero-num">{{streakcurrent}}</div>
+            <div class="kd-hero-unit">{{#str}}dash_daystreak, theme_microlearn{{/str}}</div>
+        </div>
+        <div class="kd-hero-side">{{#str}}dash_best, theme_microlearn, {{streaklongest}}{{/str}}</div>
+    </div>
+
+    <div class="kd-tiles kd-tiles--2">
+        {{#hasattendance}}
+        <div class="kd-tile">
+            <div class="kd-tile-label">{{#str}}dash_attendance, theme_microlearn{{/str}}</div>
+            <div class="kd-tile-value">{{attendancepct}}%</div>
+        </div>
+        {{/hasattendance}}
+        {{#hasstruggle}}
+        <div class="kd-tile">
+            <div class="kd-tile-label">{{#str}}dash_focus, theme_microlearn{{/str}}</div>
+            <div class="kd-tile-value kd-tile-value--sm">{{focustopic}}</div>
+            <div class="kd-tile-sub">{{strugglepct}}% {{#str}}dash_wrong_short, theme_microlearn{{/str}}</div>
+        </div>
+        {{/hasstruggle}}
+    </div>
+
+    {{#feeoverdue}}
+    <div class="kd-note kd-note--warn">{{#str}}dash_feereminder, theme_microlearn, {{feecurrency}} {{feeamount}}{{/str}}</div>
+    {{/feeoverdue}}
+
+    {{#haslessons}}
+    <section class="kd-section">
+        <h3 class="kd-section-title">{{#str}}dash_keeplearning, theme_microlearn{{/str}}</h3>
+        <ul class="kd-cards">
+            {{#lessons}}
+            <li class="kd-lesson"><a href="{{url}}">{{name}}</a></li>
+            {{/lessons}}
+        </ul>
+    </section>
+    {{/haslessons}}
+</section>
