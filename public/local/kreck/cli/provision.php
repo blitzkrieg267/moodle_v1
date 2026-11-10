@@ -96,7 +96,9 @@ $result = $engine->validate($manifest);
 $plan = $result['plan'];
 cli_writeln('Categories: ' . count($plan['categories_create']) . ' to create, '
     . count($plan['categories_exist']) . ' exist.');
-cli_writeln('Users: ' . count($plan['users_create']) . ' to create, ' . count($plan['users_exist']) . ' exist.');
+cli_writeln('Staff users: ' . count($plan['users_create']) . ' to create, ' . count($plan['users_exist']) . ' exist.');
+cli_writeln('Cohorts: ' . count($plan['cohorts_create']) . ' to create, ' . count($plan['cohorts_exist']) . ' exist.');
+cli_writeln('Students to create: ' . $plan['students_create'] . '.');
 cli_writeln('Courses: ' . count($plan['courses']) . ' to create.');
 cli_writeln('Activities to create: ' . $plan['modules_total'] . '.');
 foreach ($result['warnings'] as $w) {

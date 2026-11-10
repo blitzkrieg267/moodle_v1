@@ -56,7 +56,8 @@ if ($data = $form->get_data()) {
         $res = $engine->rollback(trim((string) $data->rollbackbatch));
         if ($res['ok']) {
             $a = (object) ['batch' => s($data->rollbackbatch), 'courses' => $res['removed']['courses'],
-                'users' => $res['removed']['users'], 'categories' => $res['removed']['categories']];
+                'users' => $res['removed']['users'], 'cohorts' => $res['removed']['cohorts'] ?? 0,
+                'categories' => $res['removed']['categories']];
             $resulthtml = $OUTPUT->notification(get_string('onb_rolledback', 'local_kreck', $a), notification::NOTIFY_SUCCESS);
         } else {
             $resulthtml = $OUTPUT->notification($res['error'], notification::NOTIFY_ERROR);
@@ -73,6 +74,9 @@ if ($data = $form->get_data()) {
                         'create' => count($plan['categories_create']), 'exist' => count($plan['categories_exist'])]),
                     get_string('onb_plan_users', 'local_kreck', (object) [
                         'create' => count($plan['users_create']), 'exist' => count($plan['users_exist'])]),
+                    get_string('onb_plan_cohorts', 'local_kreck', (object) [
+                        'create' => count($plan['cohorts_create']), 'exist' => count($plan['cohorts_exist'])]),
+                    get_string('onb_plan_students', 'local_kreck', $plan['students_create']),
                     get_string('onb_plan_courses', 'local_kreck', count($plan['courses'])),
                     get_string('onb_plan_modules', 'local_kreck', $plan['modules_total']),
                 ];

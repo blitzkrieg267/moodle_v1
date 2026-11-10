@@ -1,8 +1,8 @@
 {
   "batch_metadata": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "environment": "production",
-    "notes": "KRECK institution onboarding manifest. No media is uploaded; media slots become text placeholders you edit after setup. Leave a course's 'sections' out to get the full default blueprint (announcements forum in the general section, and one of every core activity in each week)."
+    "notes": "KRECK institution onboarding manifest. No media is uploaded; media slots become text placeholders you edit after setup. Leave a course's 'sections' out to get the full default blueprint (announcements forum in the general section, and one of every core activity in each week). Cohorts bind to courses so every member is enrolled as a student; 'generate_students' bulk-creates a class of learners."
   },
   "institution": {
     "code": "KRECK_BW",
@@ -16,6 +16,26 @@
   "users": [
     { "username": "math.teacher", "firstname": "Naledi", "lastname": "Kgosi", "email": "math.teacher@kreck.co.bw" }
   ],
+  "cohorts": [
+    {
+      "name": "IGCSE 2026 intake",
+      "idnumber": "IGCSE2026",
+      "members": ["math.teacher@kreck.co.bw"]
+    }
+  ],
+  "generate_students": [
+    {
+      "count": 25,
+      "prefix": "igcse2026-",
+      "firstname": "Learner",
+      "lastname": "IGCSE",
+      "emaildomain": "learners.kreck.co.bw",
+      "cohort": "IGCSE2026"
+    }
+  ],
+  "students": [
+    { "username": "thabo.m", "firstname": "Thabo", "lastname": "Molefe", "email": "thabo.m@learners.kreck.co.bw", "cohort": "IGCSE2026" }
+  ],
   "courses": [
     {
       "fullname": "Cambridge IGCSE Mathematics (0580)",
@@ -25,7 +45,8 @@
       "numsections": 10,
       "startdate": "2026-01-12",
       "summary": "Cambridge IGCSE Mathematics (0580) — 2026 syllabus coverage.",
-      "teachers": ["math.teacher@kreck.co.bw"]
+      "teachers": ["math.teacher@kreck.co.bw"],
+      "cohorts": ["IGCSE2026"]
     },
     {
       "fullname": "Cambridge IGCSE Biology (0610)",
@@ -36,6 +57,8 @@
       "startdate": "2026-01-12",
       "summary": "Cambridge IGCSE Biology (0610) — 2026 syllabus coverage.",
       "teachers": ["math.teacher@kreck.co.bw"],
+      "cohorts": ["IGCSE2026"],
+      "students": ["thabo.m"],
       "sections": [
         {
           "section_num": 0,

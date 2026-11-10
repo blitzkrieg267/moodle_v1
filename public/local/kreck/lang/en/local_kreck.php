@@ -92,11 +92,15 @@ $string['onb_dryrun_pass'] = '[DRY-RUN PASSED] No blocking errors. {$a} activiti
 $string['onb_dryrun_fail'] = '[DRY-RUN FAILED] Fix the errors below before provisioning.';
 $string['onb_provisioned'] = 'Provisioned successfully. Batch id: {$a}. Keep this id to roll back.';
 $string['onb_provision_failed'] = 'Provisioning failed and the partial batch was rolled back: {$a}';
-$string['onb_rolledback'] = 'Rolled back batch {$a->batch}: {$a->courses} courses, {$a->users} users, {$a->categories} categories removed.';
+$string['onb_rolledback'] = 'Rolled back batch {$a->batch}: {$a->courses} courses, {$a->users} users, {$a->cohorts} cohorts, {$a->categories} categories removed.';
 $string['onb_plan_cats'] = 'Categories: {$a->create} to create, {$a->exist} already exist.';
 $string['onb_plan_courses'] = 'Courses: {$a} to create.';
-$string['onb_plan_users'] = 'Users: {$a->create} to create, {$a->exist} already exist.';
+$string['onb_plan_users'] = 'Staff users: {$a->create} to create, {$a->exist} already exist.';
+$string['onb_plan_cohorts'] = 'Cohorts: {$a->create} to create, {$a->exist} already exist.';
+$string['onb_plan_students'] = 'Students to create (explicit + generated): {$a}.';
 $string['onb_plan_modules'] = 'Activities to create: {$a}.';
+$string['onb_log_cohortcreated'] = 'Created cohort: {$a}';
+$string['onb_log_studentsgenerated'] = 'Generated {$a->count} students ({$a->prefix}NNN)';
 $string['onb_knownbatches'] = 'Provisioned batches (available to roll back)';
 $string['onb_nobatches'] = 'No provisioned batches yet.';
 

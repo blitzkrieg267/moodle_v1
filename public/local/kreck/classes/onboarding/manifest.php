@@ -109,6 +109,33 @@ class manifest {
     }
 
     /**
+     * Cohort definitions: [{name, idnumber?, members?:[login/email]}].
+     *
+     * @return array
+     */
+    public function cohorts(): array {
+        return $this->data['cohorts'] ?? [];
+    }
+
+    /**
+     * Explicit student users: [{username, firstname, lastname, email, cohort?}].
+     *
+     * @return array
+     */
+    public function students(): array {
+        return $this->data['students'] ?? [];
+    }
+
+    /**
+     * Bulk student generators: [{count, prefix, cohort?, emaildomain?, ...}].
+     *
+     * @return array
+     */
+    public function generators(): array {
+        return $this->data['generate_students'] ?? [];
+    }
+
+    /**
      * Institution/batch metadata.
      *
      * @return array

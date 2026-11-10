@@ -74,7 +74,8 @@ class engine {
         $errors = [];
         $warnings = [];
         $plan = ['categories_create' => [], 'categories_exist' => [], 'courses' => [], 'users_create' => [],
-            'users_exist' => [], 'modules_total' => 0];
+            'users_exist' => [], 'modules_total' => 0, 'cohorts_create' => [], 'cohorts_exist' => [],
+            'students_create' => 0];
 
         // Categories.
         foreach ($manifest->category_paths() as $path) {
@@ -133,6 +134,22 @@ class engine {
             $plan['courses'][] = ['shortname' => $shortname, 'modules' => $modcount];
         }
 
+        // Cohorts.
+        foreach ($manifest->cohorts() as $cspec) {
+            $label = $cspec['name'] ?? ($cspec['idnumber'] ?? '');
+            if ($this->resolve_cohort($cspec['idnumber'] ?? ($cspec['name'] ?? ''), []) !== null) {
+                $plan['cohorts_exist'][] = $label;
+            } else {
+                $plan['cohorts_create'][] = $label;
+            }
+        }
+
+        // Students (explicit + generated).
+        $plan['students_create'] = count($manifest->students());
+        foreach ($manifest->generators() as $g) {
+            $plan['students_create'] += max(0, (int) ($g['count'] ?? 0));
+        }
+
         return ['ok' => empty($errors), 'plan' => $plan, 'errors' => $errors, 'warnings' => $warnings];
     }
 
@@ -169,12 +186,48 @@ class engine {
                 }
             }
 
-            // 2. Users.
+            // 2. Users (staff).
             foreach ($manifest->users() as $u) {
                 [$uid, $created] = $this->ensure_user($u);
                 if ($created) {
                     $record['users'][] = $uid;
                     $log[] = get_string('onb_log_usercreated', 'local_kreck', $u['username'] ?? $u['email']);
+                }
+            }
+
+            // 2b. Cohorts (create + add listed members).
+            $cohortmap = [];
+            foreach ($manifest->cohorts() as $cspec) {
+                [$cid, $created] = $this->ensure_cohort($cspec, $record);
+                $cohortmap[$this->cohort_key($cspec)] = $cid;
+                foreach ($cspec['members'] ?? [] as $login) {
+                    $this->add_cohort_member($cid, $login);
+                }
+                if ($created) {
+                    $log[] = get_string('onb_log_cohortcreated', 'local_kreck', $cspec['name'] ?? ($cspec['idnumber'] ?? ''));
+                }
+            }
+
+            // 2c. Explicit student users.
+            foreach ($manifest->students() as $s) {
+                [$uid, $created] = $this->ensure_user($s);
+                if ($created) {
+                    $record['users'][] = $uid;
+                }
+                if (!empty($s['cohort'])) {
+                    $cid = $this->resolve_cohort($s['cohort'], $cohortmap);
+                    if ($cid) {
+                        $this->add_cohort_member($cid, $s['username'] ?? $s['email']);
+                    }
+                }
+            }
+
+            // 2d. Bulk-generated student users.
+            foreach ($manifest->generators() as $g) {
+                $made = $this->generate_students($g, $cohortmap, $record);
+                if ($made) {
+                    $log[] = get_string('onb_log_studentsgenerated', 'local_kreck',
+                        (object) ['count' => $made, 'prefix' => $g['prefix'] ?? 'student']);
                 }
             }
 
@@ -222,6 +275,22 @@ class engine {
                     $this->enrol_teacher($course, $temail, $record);
                 }
 
+                // Bind cohorts to the course (cohort enrol as students).
+                foreach ($c['cohorts'] ?? [] as $cref) {
+                    $cid = $this->resolve_cohort($cref, $cohortmap);
+                    if ($cid) {
+                        $this->bind_cohort_to_course($course, $cid, 'student');
+                    }
+                }
+
+                // Directly enrol any individually listed students.
+                foreach ($c['students'] ?? [] as $login) {
+                    $uid = $this->resolve_user_id($login);
+                    if ($uid) {
+                        $this->enrol_in_course($course, $uid, 'student');
+                    }
+                }
+
                 rebuild_course_cache($course->id);
             }
 
@@ -265,7 +334,7 @@ class engine {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/course/lib.php');
 
-        $removed = ['courses' => 0, 'users' => 0, 'categories' => 0];
+        $removed = ['courses' => 0, 'users' => 0, 'cohorts' => 0, 'categories' => 0];
 
         // Courses (this also removes their modules).
         foreach ($record['courses'] ?? [] as $cid) {
@@ -281,6 +350,18 @@ class engine {
             if ($user) {
                 delete_user($user);
                 $removed['users']++;
+            }
+        }
+
+        // Cohorts.
+        if (!empty($record['cohorts'])) {
+            require_once($CFG->dirroot . '/cohort/lib.php');
+            foreach ($record['cohorts'] as $cohortid) {
+                $cohort = $DB->get_record('cohort', ['id' => $cohortid]);
+                if ($cohort) {
+                    cohort_delete_cohort($cohort);
+                    $removed['cohorts'] = ($removed['cohorts'] ?? 0) + 1;
+                }
             }
         }
 
@@ -485,6 +566,18 @@ class engine {
             $user = $DB->get_record('user', ['id' => $uid]);
         }
 
+        $this->enrol_in_course($course, (int) $user->id, 'editingteacher');
+    }
+
+    /**
+     * Manually enrol a user into a course with a role (by archetype/shortname).
+     *
+     * @param \stdClass $course
+     * @param int $userid
+     * @param string $roleshort
+     */
+    protected function enrol_in_course(\stdClass $course, int $userid, string $roleshort): void {
+        global $DB;
         $plugin = enrol_get_plugin('manual');
         $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
         if (!$instance) {
@@ -494,7 +587,163 @@ class engine {
         if ((int) $instance->status !== ENROL_INSTANCE_ENABLED) {
             $plugin->update_status($instance, ENROL_INSTANCE_ENABLED);
         }
-        $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
-        $plugin->enrol_user($instance, $user->id, $roleid);
+        $roleid = $DB->get_field('role', 'id', ['shortname' => $roleshort]);
+        $plugin->enrol_user($instance, $userid, $roleid);
+    }
+
+    /**
+     * A stable key for a cohort spec (idnumber preferred, else name).
+     *
+     * @param array $cspec
+     * @return string
+     */
+    protected function cohort_key(array $cspec): string {
+        return !empty($cspec['idnumber']) ? (string) $cspec['idnumber'] : (string) ($cspec['name'] ?? '');
+    }
+
+    /**
+     * Ensure a cohort exists in the system context.
+     *
+     * @param array $cspec
+     * @param array $record
+     * @return array [int id, bool created]
+     */
+    protected function ensure_cohort(array $cspec, array &$record): array {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/cohort/lib.php');
+
+        $context = \context_system::instance();
+        $idnumber = (string) ($cspec['idnumber'] ?? '');
+        $name = (string) ($cspec['name'] ?? $idnumber);
+
+        $existing = null;
+        if ($idnumber !== '') {
+            $existing = $DB->get_record('cohort', ['idnumber' => $idnumber]);
+        }
+        if (!$existing && $name !== '') {
+            $existing = $DB->get_record('cohort', ['name' => $name, 'contextid' => $context->id]);
+        }
+        if ($existing) {
+            return [(int) $existing->id, false];
+        }
+
+        $cohort = (object) [
+            'contextid' => $context->id,
+            'name' => $name,
+            'idnumber' => $idnumber,
+            'visible' => 1,
+            'description' => '',
+            'descriptionformat' => FORMAT_HTML,
+        ];
+        $cid = cohort_add_cohort($cohort);
+        $record['cohorts'][] = (int) $cid;
+        return [(int) $cid, true];
+    }
+
+    /**
+     * Resolve a cohort reference (idnumber or name) to an id, or null.
+     *
+     * @param string $ref
+     * @param array $map Key => id from this run.
+     * @return int|null
+     */
+    protected function resolve_cohort(string $ref, array $map): ?int {
+        global $DB;
+        if ($ref === '') {
+            return null;
+        }
+        if (isset($map[$ref])) {
+            return (int) $map[$ref];
+        }
+        $id = $DB->get_field('cohort', 'id', ['idnumber' => $ref])
+            ?: $DB->get_field('cohort', 'id', ['name' => $ref]);
+        return $id ? (int) $id : null;
+    }
+
+    /**
+     * Add a user (by login or email) to a cohort, idempotently.
+     *
+     * @param int $cohortid
+     * @param string $login
+     */
+    protected function add_cohort_member(int $cohortid, string $login): void {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/cohort/lib.php');
+        $uid = $this->resolve_user_id($login);
+        if ($uid && !$DB->record_exists('cohort_members', ['cohortid' => $cohortid, 'userid' => $uid])) {
+            cohort_add_member($cohortid, $uid);
+        }
+    }
+
+    /**
+     * Bind a cohort to a course via the cohort enrol plugin and sync members now.
+     *
+     * @param \stdClass $course
+     * @param int $cohortid
+     * @param string $roleshort
+     */
+    protected function bind_cohort_to_course(\stdClass $course, int $cohortid, string $roleshort): void {
+        global $CFG, $DB;
+        $plugin = enrol_get_plugin('cohort');
+        if (!$plugin) {
+            return;
+        }
+        $roleid = $DB->get_field('role', 'id', ['shortname' => $roleshort]);
+        if (!$DB->record_exists('enrol', ['courseid' => $course->id, 'enrol' => 'cohort', 'customint1' => $cohortid])) {
+            $plugin->add_instance($course, ['customint1' => $cohortid, 'roleid' => $roleid]);
+        }
+        // Enrol the cohort's members immediately rather than waiting for cron.
+        require_once($CFG->dirroot . '/enrol/cohort/locallib.php');
+        enrol_cohort_sync(new \null_progress_trace(), $course->id);
+    }
+
+    /**
+     * Bulk-create students from a generator spec, optionally adding to a cohort.
+     *
+     * @param array $g
+     * @param array $map Cohort key => id.
+     * @param array $record
+     * @return int Number of students created.
+     */
+    protected function generate_students(array $g, array $map, array &$record): int {
+        $count = max(0, (int) ($g['count'] ?? 0));
+        $prefix = (string) ($g['prefix'] ?? 'student');
+        $cohortid = !empty($g['cohort']) ? $this->resolve_cohort($g['cohort'], $map) : null;
+        $domain = (string) ($g['emaildomain'] ?? 'example.invalid');
+        $firstname = (string) ($g['firstname'] ?? 'Student');
+        $lastname = (string) ($g['lastname'] ?? 'Learner');
+
+        $made = 0;
+        for ($i = 1; $i <= $count; $i++) {
+            $num = str_pad((string) $i, 3, '0', STR_PAD_LEFT);
+            $username = $prefix . $num;
+            [$uid, $created] = $this->ensure_user([
+                'username' => $username,
+                'firstname' => $firstname,
+                'lastname' => $lastname . ' ' . $num,
+                'email' => $username . '@' . $domain,
+            ]);
+            if ($created) {
+                $record['users'][] = $uid;
+                $made++;
+            }
+            if ($cohortid) {
+                $this->add_cohort_member($cohortid, $username);
+            }
+        }
+        return $made;
+    }
+
+    /**
+     * Resolve a user id by username, then email.
+     *
+     * @param string $login
+     * @return int|null
+     */
+    protected function resolve_user_id(string $login): ?int {
+        global $DB;
+        $id = $DB->get_field_select('user', 'id', 'username = :u AND deleted = 0', ['u' => $login])
+            ?: $DB->get_field_select('user', 'id', 'email = :e AND deleted = 0', ['e' => $login]);
+        return $id ? (int) $id : null;
     }
 }
