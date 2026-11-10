@@ -1,0 +1,60 @@
+{
+  "batch_metadata": {
+    "version": "1.0.0",
+    "environment": "production",
+    "notes": "KRECK institution onboarding manifest. No media is uploaded; media slots become text placeholders you edit after setup. Leave a course's 'sections' out to get the full default blueprint (announcements forum in the general section, and one of every core activity in each week)."
+  },
+  "institution": {
+    "code": "KRECK_BW",
+    "name": "Kreck Learning Academy",
+    "contact_email": "admin@kreck.co.bw"
+  },
+  "categories": [
+    { "name": "2026 Academic Year", "category_path": "2026 Academic Year" },
+    { "name": "Cambridge IGCSE", "category_path": "2026 Academic Year / Cambridge IGCSE" }
+  ],
+  "users": [
+    { "username": "math.teacher", "firstname": "Naledi", "lastname": "Kgosi", "email": "math.teacher@kreck.co.bw" }
+  ],
+  "courses": [
+    {
+      "fullname": "Cambridge IGCSE Mathematics (0580)",
+      "shortname": "IGCSE-MATH-0580",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 10,
+      "startdate": "2026-01-12",
+      "summary": "Cambridge IGCSE Mathematics (0580) — 2026 syllabus coverage.",
+      "teachers": ["math.teacher@kreck.co.bw"]
+    },
+    {
+      "fullname": "Cambridge IGCSE Biology (0610)",
+      "shortname": "IGCSE-BIO-0610",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 8,
+      "startdate": "2026-01-12",
+      "summary": "Cambridge IGCSE Biology (0610) — 2026 syllabus coverage.",
+      "teachers": ["math.teacher@kreck.co.bw"],
+      "sections": [
+        {
+          "section_num": 0,
+          "title": "General course administration",
+          "modules": [
+            { "type": "forum", "forumtype": "news", "name": "Announcements", "intro": "<p>Official notices for IGCSE Biology.</p>" }
+          ]
+        },
+        {
+          "section_num": 1,
+          "title": "Week 1: Characteristics of living organisms",
+          "modules": [
+            { "type": "page", "name": "Week 1 notes", "content": "<p>[INSERT LESSON VIDEO HERE]</p><p>[INSERT WEEK 1 NOTES HERE]</p>" },
+            { "type": "assign", "name": "Week 1 diagnostic task" },
+            { "type": "quiz", "name": "Week 1 checkpoint quiz" },
+            { "type": "forum", "name": "Week 1 discussion" }
+          ]
+        }
+      ]
+    }
+  ]
+}

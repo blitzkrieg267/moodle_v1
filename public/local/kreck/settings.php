@@ -71,3 +71,11 @@ $ADMIN->add('localplugins', new admin_externalpage(
     new moodle_url('/local/kreck/seed.php'),
     'local/kreck:manage'
 ));
+
+// Onboarding & provisioning console.
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_onboarding',
+    get_string('onboarding', 'local_kreck'),
+    new moodle_url('/local/kreck/onboarding.php'),
+    'local/kreck:manage'
+));

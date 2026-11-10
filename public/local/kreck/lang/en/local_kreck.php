@@ -75,6 +75,56 @@ $string['seed_nouser'] = 'No active user has that username.';
 $string['seed_presenttoohigh'] = 'Days present cannot exceed the number of session days.';
 $string['seed_wrongtoohigh'] = 'Wrong answers cannot exceed attempts.';
 
+// Onboarding engine.
+$string['onboarding'] = 'KRECK onboarding & provisioning';
+$string['onb_intro'] = 'Provision a whole institution from a JSON manifest: categories, users and weekly courses pre-populated with a complete set of core activities. Run a dry run first, then provision, and roll back any batch by its id.';
+$string['onb_manifest'] = 'Onboarding manifest (JSON)';
+$string['onb_manifest_help'] = 'Paste a KRECK onboarding manifest. Download the template below for the expected structure. No media is uploaded; media slots become text placeholders you edit later.';
+$string['onb_mode'] = 'Mode';
+$string['onb_mode_dryrun'] = 'Dry run (validate only, no changes)';
+$string['onb_mode_execute'] = 'Provision (create everything)';
+$string['onb_mode_rollback'] = 'Roll back a batch';
+$string['onb_rollbackbatch'] = 'Batch id to roll back';
+$string['onb_submit'] = 'Run';
+$string['onb_downloadtemplate'] = 'Download the manifest template (JSON)';
+$string['onb_results'] = 'Result';
+$string['onb_dryrun_pass'] = '[DRY-RUN PASSED] No blocking errors. {$a} activities would be created.';
+$string['onb_dryrun_fail'] = '[DRY-RUN FAILED] Fix the errors below before provisioning.';
+$string['onb_provisioned'] = 'Provisioned successfully. Batch id: {$a}. Keep this id to roll back.';
+$string['onb_provision_failed'] = 'Provisioning failed and the partial batch was rolled back: {$a}';
+$string['onb_rolledback'] = 'Rolled back batch {$a->batch}: {$a->courses} courses, {$a->users} users, {$a->categories} categories removed.';
+$string['onb_plan_cats'] = 'Categories: {$a->create} to create, {$a->exist} already exist.';
+$string['onb_plan_courses'] = 'Courses: {$a} to create.';
+$string['onb_plan_users'] = 'Users: {$a->create} to create, {$a->exist} already exist.';
+$string['onb_plan_modules'] = 'Activities to create: {$a}.';
+$string['onb_knownbatches'] = 'Provisioned batches (available to roll back)';
+$string['onb_nobatches'] = 'No provisioned batches yet.';
+
+// Blueprint content.
+$string['onb_generaltitle'] = 'General course administration';
+$string['onb_weektitle'] = 'Week {$a}';
+$string['onb_announcements'] = 'Announcements';
+$string['onb_announcements_intro'] = 'Official announcements and notices for this course.';
+$string['onb_mod_notes'] = 'Week {$a}: Study guide';
+$string['onb_mod_assign'] = 'Week {$a}: Diagnostic task';
+$string['onb_mod_quiz'] = 'Week {$a}: Checkpoint quiz';
+$string['onb_mod_forum'] = 'Week {$a}: Discussion';
+$string['onb_mod_path'] = 'Week {$a}: Self-paced path';
+
+// Engine messages.
+$string['onb_badjson'] = 'The manifest is not valid JSON.';
+$string['onb_unsupportedmodule'] = 'Unsupported module type: {$a}';
+$string['onb_err_nouser'] = 'A user entry is missing a username and email.';
+$string['onb_err_coursefields'] = 'A course entry is missing its fullname or shortname.';
+$string['onb_err_shortname'] = 'Course shortname already exists: {$a}';
+$string['onb_err_nobatch'] = 'No stored batch with id: {$a}';
+$string['onb_warn_module'] = 'Module type "{$a}" is not natively supported and will be skipped.';
+$string['onb_warn_teacher'] = 'Teacher {$a} does not exist and will be created as a stub account.';
+$string['onb_log_catcreated'] = 'Created category: {$a}';
+$string['onb_log_usercreated'] = 'Created user: {$a}';
+$string['onb_log_coursecreated'] = 'Created course: {$a}';
+$string['onb_log_done'] = 'Provisioning complete. Batch id: {$a}';
+
 // Privacy.
 $string['privacy:metadata:local_kreck_student'] = 'The lifelong KRECK student record linking a user to their student ID, school and class.';
 $string['privacy:metadata:local_kreck_student:userid'] = 'The user the record belongs to.';
