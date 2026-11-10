@@ -27,9 +27,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026110300;        // YYYYMMDDXX.
-$plugin->requires  = 2026100200;        // Requires this Moodle 6.0 core (matches theme_boost).
+$plugin->version   = 2026111000;        // YYYYMMDDXX.
+$plugin->requires  = 2025041400;        // Moodle 5.0 and up (verified on 5.3 and 6.0).
 $plugin->component = 'theme_microlearn';
-$plugin->dependencies = [
-    'theme_boost' => 2026100500,
-];
+// No theme_boost version is pinned: config.php's parents=['boost'] already
+// requires Boost, and leaving the version unpinned lets the theme install
+// across 5.x and 6.x point releases without a version-mismatch block.
