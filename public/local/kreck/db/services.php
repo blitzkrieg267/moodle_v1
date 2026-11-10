@@ -47,6 +47,24 @@ $functions = [
         'capabilities' => 'local/kreck:manage',
         'services'    => ['local_kreck_service'],
     ],
+    'local_kreck_ingest_fees' => [
+        'classname'   => 'local_kreck\\external\\ingest_fees',
+        'methodname'  => 'execute',
+        'description' => 'Record (or update) a learner\'s fee balance and debit-order status. Used by the KRECK fees sync.',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
+    'local_kreck_ingest_streak' => [
+        'classname'   => 'local_kreck\\external\\ingest_streak',
+        'methodname'  => 'execute',
+        'description' => 'Record (or update) a learner\'s app-engagement streak. Used by the KRECK app attendance feed.',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
 ];
 
 $services = [
@@ -55,6 +73,8 @@ $services = [
         'functions'      => [
             'local_kreck_get_learner_summary',
             'local_kreck_ingest_attendance',
+            'local_kreck_ingest_fees',
+            'local_kreck_ingest_streak',
         ],
         'restrictedusers' => 1,
         'enabled'         => 0,

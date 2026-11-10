@@ -19,10 +19,13 @@ clean API and web services so the school system, the mobile app and the
   the database directly.
 - **Web services** (`db/services.php`, `classes/external/`):
   - `local_kreck_get_learner_summary` (read) — for the app/dashboards.
-  - `local_kreck_ingest_attendance` (write) — for the KRECK register sync.
-  Both are attached to the `local_kreck_service` web service (disabled by
-  default; enable it and issue a token under *Site admin → Server → Web
-  services* when you're ready to connect SMS).
+  - `local_kreck_ingest_attendance` (write) — the KRECK register sync.
+  - `local_kreck_ingest_fees` (write) — fee balance / debit-order status.
+  - `local_kreck_ingest_streak` (write) — app-engagement streak (longest grows
+    monotonically).
+  All attached to the `local_kreck_service` web service (disabled by default;
+  enable it and issue a token under *Site admin → Server → Web services* when
+  you're ready to connect SMS).
 - **Capabilities** (`db/access.php`): `local/kreck:view`, `:manage`,
   `:viewinstitution`.
 - **Settings** (`settings.php`): enable toggle, default currency, attendance
@@ -52,8 +55,6 @@ admin tool — this plugin owns the storage and the contract, not the UI.
 
 ## Not included yet (next steps)
 
-- `ingest_fees` / `ingest_streak` web services (mirror of `ingest_attendance`).
-- A `block_kreck_streak` / `block_kreck_fees` dashboard card that renders the
-  summary.
-- An admin page to browse/seed records for testing.
-- Scheduled task to roll attendance into streaks.
+- A scheduled task to roll attendance into streaks automatically.
+- `ingest_topicstat` for pushing per-topic struggle data.
+- CSV → manifest helper for the onboarding engine.
