@@ -33,9 +33,15 @@ admin_externalpage_setup('local_kreck_onboarding');
 require_capability('local/kreck:manage', context_system::instance());
 
 // Serve the manifest template as a download.
-if (optional_param('action', '', PARAM_ALPHA) === 'template') {
+$action = optional_param('action', '', PARAM_ALPHA);
+if ($action === 'template') {
     send_file(__DIR__ . '/samples/onboarding_template.json', 'kreck_onboarding_template.json',
         0, 0, false, true, 'application/json');
+    die;
+}
+if ($action === 'csvtemplate') {
+    send_file(__DIR__ . '/samples/courses_template.csv', 'kreck_courses_template.csv',
+        0, 0, false, true, 'text/csv');
     die;
 }
 
@@ -64,9 +70,17 @@ if ($data = $form->get_data()) {
         }
     } else {
         try {
-            $manifest = manifest::from_json((string) $data->manifest);
+            $generatedjson = '';
+            if ($data->mode === 'csv') {
+                $fragment = \local_kreck\onboarding\csv_importer::courses_to_manifest((string) $data->coursescsv);
+                $generatedjson = json_encode($fragment,
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                $manifest = new manifest($fragment);
+            } else {
+                $manifest = manifest::from_json((string) $data->manifest);
+            }
 
-            if ($data->mode === 'dryrun') {
+            if ($data->mode === 'dryrun' || $data->mode === 'csv') {
                 $res = $engine->validate($manifest);
                 $plan = $res['plan'];
                 $lines = [
@@ -90,8 +104,16 @@ if ($data = $form->get_data()) {
                 foreach ($res['errors'] as $e) {
                     $lines[] = 'ERROR: ' . $e;
                 }
-                $resulthtml = $OUTPUT->notification($heading, $type)
-                    . html_writer::tag('pre', s(implode("\n", $lines)), ['class' => 'bg-light p-3 rounded']);
+                if ($data->mode === 'csv') {
+                    $resulthtml = $OUTPUT->notification(get_string('onb_csv_built', 'local_kreck'),
+                            $res['ok'] ? notification::NOTIFY_SUCCESS : notification::NOTIFY_WARNING)
+                        . html_writer::tag('p', get_string('onb_csv_copy', 'local_kreck'))
+                        . html_writer::tag('pre', s($generatedjson), ['class' => 'bg-light p-3 rounded'])
+                        . html_writer::tag('pre', s(implode("\n", $lines)), ['class' => 'bg-light p-3 rounded']);
+                } else {
+                    $resulthtml = $OUTPUT->notification($heading, $type)
+                        . html_writer::tag('pre', s(implode("\n", $lines)), ['class' => 'bg-light p-3 rounded']);
+                }
 
             } else { // execute.
                 $res = $engine->provision($manifest);
@@ -113,8 +135,12 @@ if ($data = $form->get_data()) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('onboarding', 'local_kreck'));
 echo html_writer::tag('p', get_string('onb_intro', 'local_kreck'), ['class' => 'text-muted']);
-echo html_writer::link(new moodle_url($pageurl, ['action' => 'template']),
-    get_string('onb_downloadtemplate', 'local_kreck'), ['class' => 'btn btn-outline-secondary mb-3']);
+echo html_writer::div(
+    html_writer::link(new moodle_url($pageurl, ['action' => 'template']),
+        get_string('onb_downloadtemplate', 'local_kreck'), ['class' => 'btn btn-outline-secondary me-2'])
+    . html_writer::link(new moodle_url($pageurl, ['action' => 'csvtemplate']),
+        get_string('onb_downloadcsv', 'local_kreck'), ['class' => 'btn btn-outline-secondary']),
+    'mb-3');
 
 echo $resulthtml;
 

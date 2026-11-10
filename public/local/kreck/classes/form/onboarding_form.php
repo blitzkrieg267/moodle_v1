@@ -42,6 +42,7 @@ class onboarding_form extends \moodleform {
         $mform->addElement('select', 'mode', get_string('onb_mode', 'local_kreck'), [
             'dryrun' => get_string('onb_mode_dryrun', 'local_kreck'),
             'execute' => get_string('onb_mode_execute', 'local_kreck'),
+            'csv' => get_string('onb_mode_csv', 'local_kreck'),
             'rollback' => get_string('onb_mode_rollback', 'local_kreck'),
         ]);
         $mform->setDefault('mode', 'dryrun');
@@ -51,6 +52,13 @@ class onboarding_form extends \moodleform {
         $mform->setType('manifest', PARAM_RAW);
         $mform->addHelpButton('manifest', 'onb_manifest', 'local_kreck');
         $mform->hideIf('manifest', 'mode', 'eq', 'rollback');
+        $mform->hideIf('manifest', 'mode', 'eq', 'csv');
+
+        $mform->addElement('textarea', 'coursescsv', get_string('onb_coursescsv', 'local_kreck'),
+            ['rows' => 10, 'cols' => 80, 'style' => 'font-family:monospace;']);
+        $mform->setType('coursescsv', PARAM_RAW);
+        $mform->addHelpButton('coursescsv', 'onb_coursescsv', 'local_kreck');
+        $mform->hideIf('coursescsv', 'mode', 'neq', 'csv');
 
         $mform->addElement('text', 'rollbackbatch', get_string('onb_rollbackbatch', 'local_kreck'), ['size' => 42]);
         $mform->setType('rollbackbatch', PARAM_RAW_TRIMMED);

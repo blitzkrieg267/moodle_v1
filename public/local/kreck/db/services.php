@@ -65,6 +65,15 @@ $functions = [
         'capabilities' => 'local/kreck:manage',
         'services'    => ['local_kreck_service'],
     ],
+    'local_kreck_ingest_topicstat' => [
+        'classname'   => 'local_kreck\\external\\ingest_topicstat',
+        'methodname'  => 'execute',
+        'description' => 'Record (or update) per-topic attempt/wrong counts for a learner (struggle analytics).',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
 ];
 
 $services = [
@@ -75,6 +84,7 @@ $services = [
             'local_kreck_ingest_attendance',
             'local_kreck_ingest_fees',
             'local_kreck_ingest_streak',
+            'local_kreck_ingest_topicstat',
         ],
         'restrictedusers' => 1,
         'enabled'         => 0,
