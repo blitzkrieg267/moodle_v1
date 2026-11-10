@@ -1,0 +1,75 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_kreck_streak/card
+
+    Learner snapshot card: streak, attendance, fees and hardest topic.
+
+    Example context (json):
+    {
+        "streakcurrent": 5, "streaklongest": 12, "streakplural": true,
+        "hasattendance": true, "attendancepct": 96,
+        "hasfees": true, "feeamount": "450.00", "feecurrency": "BWP",
+        "feestatuslabel": "Overdue", "feestatusmod": "warn",
+        "hasstruggle": true, "struggletopic": "Fractions", "strugglepct": 70,
+        "hasstudentid": true, "studentid": "KR-00912"
+    }
+}}
+<div class="kreckstreak">
+    <div class="kreckstreak-hero">
+        <div class="kreckstreak-flame" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                <path d="M12 2c.6 3-1.5 4.4-2.8 5.9C8 9.2 7 10.6 7 12.5A5 5 0 0 0 17 13c0-1.7-.7-3-1.6-4.2.3 1-.2 2-1 2.6.3-2-.7-4-2.4-5.3C10.8 5 12.5 3.6 12 2z"/>
+            </svg>
+        </div>
+        <div class="kreckstreak-herotext">
+            <div class="kreckstreak-count">{{streakcurrent}}</div>
+            <div class="kreckstreak-unit">{{#streakplural}}{{#str}}daystreak, block_kreck_streak{{/str}}{{/streakplural}}{{^streakplural}}{{#str}}daystreak_one, block_kreck_streak{{/str}}{{/streakplural}}</div>
+        </div>
+        <div class="kreckstreak-best">{{#str}}best, block_kreck_streak{{/str}} {{streaklongest}}</div>
+    </div>
+
+    <ul class="kreckstreak-stats">
+        {{#hasattendance}}
+        <li class="kreckstreak-stat">
+            <span class="kreckstreak-stat-label">{{#str}}attendance, block_kreck_streak{{/str}}</span>
+            <span class="kreckstreak-stat-value">{{attendancepct}}%</span>
+        </li>
+        {{/hasattendance}}
+
+        {{#hasfees}}
+        <li class="kreckstreak-stat">
+            <span class="kreckstreak-stat-label">{{#str}}fees, block_kreck_streak{{/str}}</span>
+            <span class="kreckstreak-stat-value">
+                {{feecurrency}} {{feeamount}}
+                <span class="kreckstreak-pill kreckstreak-pill--{{feestatusmod}}">{{feestatuslabel}}</span>
+            </span>
+        </li>
+        {{/hasfees}}
+
+        {{#hasstruggle}}
+        <li class="kreckstreak-stat">
+            <span class="kreckstreak-stat-label">{{#str}}focustopic, block_kreck_streak{{/str}}</span>
+            <span class="kreckstreak-stat-value">{{struggletopic}} <span class="kreckstreak-muted">({{strugglepct}}% {{#str}}wrong, block_kreck_streak{{/str}})</span></span>
+        </li>
+        {{/hasstruggle}}
+    </ul>
+
+    {{#hasstudentid}}
+    <div class="kreckstreak-foot">{{#str}}studentid, block_kreck_streak{{/str}} <strong>{{studentid}}</strong></div>
+    {{/hasstudentid}}
+</div>

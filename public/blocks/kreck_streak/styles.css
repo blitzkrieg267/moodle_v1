@@ -1,0 +1,105 @@
+/* KRECK learning streak block.
+   Uses theme_microlearn's brand custom properties when present, with KRECK
+   fallbacks so the card still looks right under stock Boost. */
+
+.block_kreck_streak .card-text { padding: 0; }
+
+.kreckstreak {
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+}
+
+.kreckstreak-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: 1rem 1.1rem;
+    border-radius: var(--mds-border-radius-lg, 16px);
+    color: #fff;
+    background:
+        radial-gradient(120px 80px at 85% -20%, rgba(242, 164, 60, .45), transparent 70%),
+        var(--kreck-slate-900, #0f1e2e);
+}
+
+.kreckstreak-flame {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: var(--kreck-amber, #f2a43c);
+    background: rgba(242, 164, 60, .15);
+    flex: none;
+}
+
+.kreckstreak-herotext { line-height: 1; }
+.kreckstreak-count { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+.kreckstreak-unit { font-size: .8rem; color: #c3cdd6; margin-top: .2rem; }
+
+.kreckstreak-best {
+    margin-left: auto;
+    align-self: flex-start;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--kreck-amber, #f2a43c);
+}
+
+.kreckstreak-stats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+}
+
+.kreckstreak-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding-bottom: .55rem;
+    border-bottom: 1px solid rgba(15, 30, 46, .08);
+}
+.kreckstreak-stat:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.kreckstreak-stat-label {
+    font-size: .78rem;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--kreck-ink-muted, #5a6b7b);
+}
+
+.kreckstreak-stat-value {
+    font-weight: 700;
+    text-align: right;
+    color: var(--kreck-ink, #13212e);
+}
+
+.kreckstreak-muted { font-weight: 500; color: var(--kreck-ink-muted, #5a6b7b); }
+
+.kreckstreak-pill {
+    display: inline-block;
+    margin-left: .35rem;
+    padding: .12rem .5rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    vertical-align: middle;
+}
+.kreckstreak-pill--ok   { background: rgba(30, 138, 116, .15); color: #166a59; }
+.kreckstreak-pill--warn { background: rgba(242, 164, 60, .18); color: #8a5a12; }
+.kreckstreak-pill--bad  { background: rgba(192, 57, 43, .14);  color: #9a2c20; }
+
+.kreckstreak-foot {
+    font-size: .8rem;
+    color: var(--kreck-ink-muted, #5a6b7b);
+}
+
+/* Dark mode: lift the stat text and borders. */
+[data-bs-theme="dark"] .kreckstreak-stat { border-bottom-color: rgba(255, 255, 255, .1); }
+[data-bs-theme="dark"] .kreckstreak-stat-value { color: #e7edf3; }
