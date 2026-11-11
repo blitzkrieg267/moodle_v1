@@ -245,6 +245,14 @@ class engine {
                 if ($created) {
                     $record['users'][] = $uid;
                 }
+                // Persist the cross-system identity link (external SIS student ID
+                // -> Moodle userid). This is the join key that lets results/grades
+                // round-trip back to the right person in the SIS (e.g. Gibbon).
+                if (!empty($s['studentid'])) {
+                    if ($this->ensure_student_record($uid, (string) $s['studentid'], $s)) {
+                        $record['students'][] = $uid;
+                    }
+                }
                 if (!empty($s['cohort'])) {
                     $cid = $this->resolve_cohort($s['cohort'], $cohortmap);
                     if ($cid) {
@@ -415,6 +423,13 @@ class engine {
             if ($DB->record_exists('course', ['id' => $cid])) {
                 delete_course($cid, false);
                 $removed['courses']++;
+            }
+        }
+
+        // KRECK student identity records (before the users themselves).
+        foreach ($record['students'] ?? [] as $uid) {
+            if ($DB->delete_records('local_kreck_student', ['userid' => $uid])) {
+                $removed['students'] = ($removed['students'] ?? 0) + 1;
             }
         }
 
@@ -615,6 +630,48 @@ class engine {
             $id = user_create_user($new, false, false);
         }
         return [(int) $id, true];
+    }
+
+    /**
+     * Upsert the KRECK student record that links a Moodle userid to the external
+     * SIS student ID (the cross-system join key for the results round-trip).
+     *
+     * Uses the persistent model so audit fields and the unique userid key are
+     * handled consistently. Best-effort: a failure never aborts provisioning.
+     *
+     * @param int $userid Moodle user id.
+     * @param string $studentid External SIS student ID (e.g. Gibbon studentID).
+     * @param array $s The manifest student row (optional classname/stream/etc).
+     * @return bool True if a record was created or updated.
+     */
+    protected function ensure_student_record(int $userid, string $studentid, array $s): bool {
+        if ($userid <= 0 || $studentid === '') {
+            return false;
+        }
+        try {
+            $existing = \local_kreck\persistent\student::get_record(['userid' => $userid]);
+            $record = $existing ?: new \local_kreck\persistent\student();
+            $record->set('userid', $userid);
+            $record->set('studentid', $studentid);
+            if (isset($s['cohort'])) {
+                $record->set('classname', (string) $s['cohort']);
+            }
+            if (isset($s['stream'])) {
+                $record->set('stream', (string) $s['stream']);
+            }
+            if (isset($s['schoolid'])) {
+                $record->set('schoolid', (string) $s['schoolid']);
+            }
+            if (isset($s['guardiancontact'])) {
+                $record->set('guardiancontact', (string) $s['guardiancontact']);
+            }
+            $record->save();
+            return true;
+        } catch (\Throwable $e) {
+            debugging('local_kreck: could not store student record for userid ' . $userid
+                . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return false;
+        }
     }
 
     /**
