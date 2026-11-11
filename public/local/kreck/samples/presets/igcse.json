@@ -1,0 +1,141 @@
+{
+  "batch_metadata": {
+    "version": "1.0.0",
+    "preset": "Cambridge IGCSE",
+    "notes": "KRECK starter template for a Cambridge IGCSE school. Loads the common IGCSE subject set with syllabus codes. Add teachers, cohorts and learners, and adjust weeks, during onboarding."
+  },
+  "categories": [
+    {
+      "name": "Cambridge IGCSE",
+      "category_path": "2026 Academic Year / Cambridge IGCSE"
+    }
+  ],
+  "courses": [
+    {
+      "fullname": "Cambridge IGCSE Mathematics (0580)",
+      "shortname": "IGCSE-0580",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Mathematics (0580) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Additional Mathematics (0606)",
+      "shortname": "IGCSE-0606",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Additional Mathematics (0606) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE First Language English (0500)",
+      "shortname": "IGCSE-0500",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE First Language English (0500) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE English as a Second Language (0510)",
+      "shortname": "IGCSE-0510",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE English as a Second Language (0510) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Biology (0610)",
+      "shortname": "IGCSE-0610",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Biology (0610) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Chemistry (0620)",
+      "shortname": "IGCSE-0620",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Chemistry (0620) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Physics (0625)",
+      "shortname": "IGCSE-0625",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Physics (0625) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Combined Science (0653)",
+      "shortname": "IGCSE-0653",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Combined Science (0653) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Geography (0460)",
+      "shortname": "IGCSE-0460",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Geography (0460) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE History (0470)",
+      "shortname": "IGCSE-0470",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE History (0470) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Economics (0455)",
+      "shortname": "IGCSE-0455",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Economics (0455) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Business Studies (0450)",
+      "shortname": "IGCSE-0450",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Business Studies (0450) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Accounting (0452)",
+      "shortname": "IGCSE-0452",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Accounting (0452) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge IGCSE Computer Science (0478)",
+      "shortname": "IGCSE-0478",
+      "category_path": "2026 Academic Year / Cambridge IGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge IGCSE Computer Science (0478) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    }
+  ]
+}

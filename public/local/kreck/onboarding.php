@@ -49,6 +49,15 @@ if ($action === 'workbook') {
         0, 0, false, true, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     die;
 }
+if ($action === 'preset') {
+    $body = optional_param('body', '', PARAM_ALPHA);
+    $allowedpresets = ['igcse', 'alevel', 'olevel', 'bgcse', 'psle'];
+    if (in_array($body, $allowedpresets, true)) {
+        send_file(__DIR__ . "/samples/presets/{$body}.json", "kreck_preset_{$body}.json",
+            0, 0, false, true, 'application/json');
+    }
+    die;
+}
 
 $pageurl = new moodle_url('/local/kreck/onboarding.php');
 $PAGE->set_url($pageurl);
@@ -159,6 +168,23 @@ echo html_writer::div(
     . html_writer::link(new moodle_url($pageurl, ['action' => 'csvtemplate']),
         get_string('onb_downloadcsv', 'local_kreck'), ['class' => 'btn btn-outline-secondary']),
     'mb-3');
+
+// Starter templates by exam body.
+echo $OUTPUT->heading(get_string('onb_presets', 'local_kreck'), 4, 'mt-2');
+$bodies = [
+    'igcse' => 'Cambridge IGCSE',
+    'alevel' => 'Cambridge A Level',
+    'olevel' => 'Cambridge O Level',
+    'bgcse' => 'BGCSE',
+    'psle' => 'PSLE',
+];
+$presetlinks = '';
+foreach ($bodies as $slug => $label) {
+    $presetlinks .= html_writer::link(new moodle_url($pageurl, ['action' => 'preset', 'body' => $slug]),
+        $label, ['class' => 'btn btn-sm btn-outline-secondary me-2 mb-1']);
+}
+echo html_writer::div($presetlinks, 'mb-2');
+echo html_writer::tag('p', get_string('onb_presets_help', 'local_kreck'), ['class' => 'text-muted small mb-4']);
 
 echo $resulthtml;
 

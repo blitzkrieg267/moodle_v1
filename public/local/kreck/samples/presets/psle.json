@@ -1,0 +1,87 @@
+{
+  "batch_metadata": {
+    "version": "1.0.0",
+    "preset": "PSLE",
+    "notes": "KRECK starter template for a PSLE (Primary School Leaving Examination, Standard 7) school."
+  },
+  "categories": [
+    {
+      "name": "PSLE",
+      "category_path": "2026 Academic Year / PSLE"
+    }
+  ],
+  "courses": [
+    {
+      "fullname": "PSLE English",
+      "shortname": "PSLE-ENGLI",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE English — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Setswana",
+      "shortname": "PSLE-SETSW",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Setswana — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Mathematics",
+      "shortname": "PSLE-MATHE",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Mathematics — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Science",
+      "shortname": "PSLE-SCIEN",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Science — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Social Studies",
+      "shortname": "PSLE-SS",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Social Studies — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Religious and Moral Education",
+      "shortname": "PSLE-RME",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Religious and Moral Education — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Agriculture",
+      "shortname": "PSLE-AGRIC",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Agriculture — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "PSLE Creative and Performing Arts",
+      "shortname": "PSLE-CPA",
+      "category_path": "2026 Academic Year / PSLE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "PSLE Creative and Performing Arts — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    }
+  ]
+}

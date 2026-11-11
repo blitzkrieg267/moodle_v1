@@ -1,0 +1,114 @@
+{
+  "batch_metadata": {
+    "version": "1.0.0",
+    "preset": "Cambridge O Level",
+    "notes": "KRECK starter template for a Cambridge O Level school."
+  },
+  "categories": [
+    {
+      "name": "Cambridge O Level",
+      "category_path": "2026 Academic Year / Cambridge O Level"
+    }
+  ],
+  "courses": [
+    {
+      "fullname": "Cambridge O Level Mathematics (4024)",
+      "shortname": "OLVL-4024",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Mathematics (4024) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Additional Mathematics (4037)",
+      "shortname": "OLVL-4037",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Additional Mathematics (4037) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level English Language (1123)",
+      "shortname": "OLVL-1123",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level English Language (1123) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Biology (5090)",
+      "shortname": "OLVL-5090",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Biology (5090) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Chemistry (5070)",
+      "shortname": "OLVL-5070",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Chemistry (5070) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Physics (5054)",
+      "shortname": "OLVL-5054",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Physics (5054) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Geography (2217)",
+      "shortname": "OLVL-2217",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Geography (2217) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level History (2147)",
+      "shortname": "OLVL-2147",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level History (2147) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Principles of Accounts (7110)",
+      "shortname": "OLVL-7110",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Principles of Accounts (7110) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Commerce (7100)",
+      "shortname": "OLVL-7100",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Commerce (7100) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "Cambridge O Level Computer Science (2210)",
+      "shortname": "OLVL-2210",
+      "category_path": "2026 Academic Year / Cambridge O Level",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "Cambridge O Level Computer Science (2210) — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    }
+  ]
+}

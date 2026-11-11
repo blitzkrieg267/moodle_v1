@@ -1,0 +1,159 @@
+{
+  "batch_metadata": {
+    "version": "1.0.0",
+    "preset": "BGCSE",
+    "notes": "KRECK starter template for a BGCSE (Botswana General Certificate of Secondary Education) school. Subjects follow the BEC curriculum; codes are assigned by the school."
+  },
+  "categories": [
+    {
+      "name": "BGCSE",
+      "category_path": "2026 Academic Year / BGCSE"
+    }
+  ],
+  "courses": [
+    {
+      "fullname": "BGCSE English Language",
+      "shortname": "BGCSE-EL",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE English Language — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Setswana",
+      "shortname": "BGCSE-SETSW",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Setswana — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Mathematics",
+      "shortname": "BGCSE-MATHE",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Mathematics — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Additional Mathematics",
+      "shortname": "BGCSE-AM",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Additional Mathematics — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Double Award Science",
+      "shortname": "BGCSE-DAS",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Double Award Science — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Biology",
+      "shortname": "BGCSE-BIOLO",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Biology — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Chemistry",
+      "shortname": "BGCSE-CHEMI",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Chemistry — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Physics",
+      "shortname": "BGCSE-PHYSI",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Physics — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Geography",
+      "shortname": "BGCSE-GEOGR",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Geography — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE History",
+      "shortname": "BGCSE-HISTO",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE History — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Development Studies",
+      "shortname": "BGCSE-DS",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Development Studies — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Religious Education",
+      "shortname": "BGCSE-RE",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Religious Education — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Agriculture",
+      "shortname": "BGCSE-AGRIC",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Agriculture — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Business Studies",
+      "shortname": "BGCSE-BS",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Business Studies — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Accounting",
+      "shortname": "BGCSE-ACCOU",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Accounting — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    },
+    {
+      "fullname": "BGCSE Computer Studies",
+      "shortname": "BGCSE-CS",
+      "category_path": "2026 Academic Year / BGCSE",
+      "format": "weeks",
+      "numsections": 6,
+      "startdate": "2026-01-13",
+      "summary": "BGCSE Computer Studies — KRECK starter template. Adjust weeks, teachers and content before rollout."
+    }
+  ]
+}
