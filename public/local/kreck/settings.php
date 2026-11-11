@@ -61,6 +61,36 @@ if ($hassiteconfig) {
         get_string('feegatesapp_desc', 'local_kreck'),
         0
     ));
+
+    // Starter password for provisioned users.
+    $settings->add(new admin_setting_configtext(
+        'local_kreck/defaultpassword',
+        get_string('defaultpassword', 'local_kreck'),
+        get_string('defaultpassword_desc', 'local_kreck'),
+        '',
+        PARAM_RAW_TRIMMED
+    ));
+    $settings->add(new admin_setting_configcheckbox(
+        'local_kreck/forcepasswordchange',
+        get_string('forcepasswordchange', 'local_kreck'),
+        get_string('forcepasswordchange_desc', 'local_kreck'),
+        1
+    ));
+
+    // Public landing page.
+    $settings->add(new admin_setting_configcheckbox(
+        'local_kreck/landingenabled',
+        get_string('landingenabled', 'local_kreck'),
+        get_string('landingenabled_desc', 'local_kreck'),
+        1
+    ));
+    $settings->add(new admin_setting_configtextarea(
+        'local_kreck/landingintro',
+        get_string('landingintro', 'local_kreck'),
+        get_string('landingintro_desc', 'local_kreck'),
+        '',
+        PARAM_TEXT
+    ));
 }
 
 // Admin tool: seed sample KRECK data onto a learner (capability-gated, so a

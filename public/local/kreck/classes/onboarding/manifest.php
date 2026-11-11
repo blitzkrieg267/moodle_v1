@@ -136,6 +136,25 @@ class manifest {
     }
 
     /**
+     * A starter password to set on created users, or null to use the setting.
+     *
+     * @return string|null
+     */
+    public function default_password(): ?string {
+        return $this->data['defaultpassword'] ?? null;
+    }
+
+    /**
+     * Whether created users must change their password at first login (null = unset).
+     *
+     * @return bool|null
+     */
+    public function force_password_change(): ?bool {
+        return array_key_exists('forcepasswordchange', $this->data)
+            ? (bool) $this->data['forcepasswordchange'] : null;
+    }
+
+    /**
      * Enrolments into existing or just-created courses:
      * [{user: email|username, course: shortname, role?}].
      *

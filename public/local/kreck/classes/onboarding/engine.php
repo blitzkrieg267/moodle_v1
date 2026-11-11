@@ -44,6 +44,12 @@ class engine {
     /** @var string This run's batch id. */
     protected $batchid;
 
+    /** @var string Starter password applied to created users ('' = none). */
+    protected $defaultpassword = '';
+
+    /** @var bool Force a password change at first login. */
+    protected $forcepasswordchange = true;
+
     /**
      * @param string|null $batchid Optional fixed id (else generated).
      */
@@ -186,6 +192,14 @@ class engine {
         if (!isloggedin() || isguestuser()) {
             \core\session\manager::set_user(get_admin());
         }
+
+        // Resolve the starter password: manifest wins, else the plugin setting.
+        $this->defaultpassword = (string) ($manifest->default_password()
+            ?? (get_config('local_kreck', 'defaultpassword') ?: ''));
+        $forcemanifest = $manifest->force_password_change();
+        $this->forcepasswordchange = $forcemanifest !== null
+            ? (bool) $forcemanifest
+            : (get_config('local_kreck', 'forcepasswordchange') !== '0');
 
         $log = [];
         $record = ['batchid' => $this->batchid, 'timecreated' => time(),
@@ -587,7 +601,19 @@ class engine {
             'lastname' => $u['lastname'] ?? 'User',
             'email' => $u['email'] ?? ($username . '@example.invalid'),
         ];
-        $id = user_create_user($new, false, false);
+
+        // Starter password: per-row, else the run default. With a password set,
+        // the account can log in; without one it is created password-less.
+        $password = $u['password'] ?? $this->defaultpassword;
+        if ($password !== null && $password !== '') {
+            $new->password = $password;
+            $id = user_create_user($new, true, false);
+            if ($this->forcepasswordchange) {
+                set_user_preference('auth_forcepasswordchange', 1, $id);
+            }
+        } else {
+            $id = user_create_user($new, false, false);
+        }
         return [(int) $id, true];
     }
 

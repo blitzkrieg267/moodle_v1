@@ -75,6 +75,24 @@ $string['seed_nouser'] = 'No active user has that username.';
 $string['seed_presenttoohigh'] = 'Days present cannot exceed the number of session days.';
 $string['seed_wrongtoohigh'] = 'Wrong answers cannot exceed attempts.';
 
+// Starter password + landing page settings.
+$string['defaultpassword'] = 'Starter password for provisioned users';
+$string['defaultpassword_desc'] = 'When set, every user the onboarding engine creates is given this password so they can log in. Leave blank to create accounts without a password (they cannot log in until one is set). A manifest\'s own "defaultpassword" overrides this.';
+$string['forcepasswordchange'] = 'Force password change at first login';
+$string['forcepasswordchange_desc'] = 'If enabled, provisioned users must choose their own password the first time they log in with the starter password.';
+$string['landingenabled'] = 'Public landing page';
+$string['landingenabled_desc'] = 'Send anonymous visitors from the site front page to a friendly public page showing the institution, its categories and the courses offered. Logged-in users are unaffected. Turn off to restore Moodle\'s default front page.';
+$string['landingintro'] = 'Landing page intro text';
+$string['landingintro_desc'] = 'Optional short paragraph shown on the public landing page. Leave blank to use the site summary.';
+$string['landing_eyebrow'] = 'Welcome to';
+$string['landing_defaultintro'] = 'Browse the subjects and courses offered here. Log in to start learning.';
+$string['landing_courses'] = 'Courses offered';
+$string['landing_stat_categories'] = 'Categories';
+$string['landing_stat_subjects'] = 'Subjects';
+$string['landing_stat_activities'] = 'Learning activities';
+$string['landing_stat_learners'] = 'Learners';
+$string['landing_nocourses'] = 'Courses will appear here once they are published.';
+
 // Onboarding engine.
 $string['onboarding'] = 'KRECK onboarding & provisioning';
 $string['onb_intro'] = 'Provision a whole institution from a JSON manifest: categories, users and weekly courses pre-populated with a complete set of core activities. Run a dry run first, then provision, and roll back any batch by its id.';
