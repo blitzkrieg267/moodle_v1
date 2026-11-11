@@ -75,7 +75,7 @@ class engine {
         $warnings = [];
         $plan = ['categories_create' => [], 'categories_exist' => [], 'courses' => [], 'users_create' => [],
             'users_exist' => [], 'modules_total' => 0, 'cohorts_create' => [], 'cohorts_exist' => [],
-            'students_create' => 0];
+            'students_create' => 0, 'enrolments' => 0];
 
         // Categories.
         foreach ($manifest->category_paths() as $path) {
@@ -150,6 +150,23 @@ class engine {
             $plan['students_create'] += max(0, (int) ($g['count'] ?? 0));
         }
 
+        // Enrolments.
+        $plan['enrolments'] = 0;
+        $manifestshortnames = array_map(static fn($c) => trim((string) ($c['shortname'] ?? '')), $manifest->courses());
+        foreach ($manifest->enrolments() as $e) {
+            $plan['enrolments']++;
+            $coursekey = trim((string) ($e['course'] ?? ''));
+            if (trim((string) ($e['user'] ?? '')) === '' || $coursekey === '') {
+                $errors[] = get_string('onb_err_enrolfields', 'local_kreck');
+                continue;
+            }
+            $courseexists = $DB->record_exists('course', ['shortname' => $coursekey])
+                || in_array($coursekey, $manifestshortnames, true);
+            if (!$courseexists) {
+                $errors[] = get_string('onb_err_enrolnocourse', 'local_kreck', $coursekey);
+            }
+        }
+
         return ['ok' => empty($errors), 'plan' => $plan, 'errors' => $errors, 'warnings' => $warnings];
     }
 
@@ -172,7 +189,7 @@ class engine {
 
         $log = [];
         $record = ['batchid' => $this->batchid, 'timecreated' => time(),
-            'categories' => [], 'users' => [], 'courses' => [], 'cms' => []];
+            'categories' => [], 'users' => [], 'cohorts' => [], 'courses' => [], 'cms' => [], 'enrolments' => []];
 
         try {
             // 1. Categories.
@@ -294,6 +311,33 @@ class engine {
                 rebuild_course_cache($course->id);
             }
 
+            // 4. Enrolments into existing or just-created courses.
+            foreach ($manifest->enrolments() as $e) {
+                $courseid = $DB->get_field('course', 'id', ['shortname' => trim((string) ($e['course'] ?? ''))]);
+                if (!$courseid) {
+                    continue;
+                }
+                $enrolcourse = get_course($courseid);
+                $login = trim((string) ($e['user'] ?? ''));
+                $uid = $this->resolve_user_id($login);
+                if (!$uid) {
+                    [$uid, $created] = $this->ensure_user([
+                        'username' => $login,
+                        'email' => (strpos($login, '@') !== false) ? $login : ($login . '@example.invalid'),
+                        'firstname' => 'KRECK',
+                        'lastname' => 'User',
+                    ]);
+                    if ($created) {
+                        $record['users'][] = $uid;
+                    }
+                }
+                $roleshort = $this->normalise_role((string) ($e['role'] ?? 'student'));
+                $this->enrol_in_course($enrolcourse, $uid, $roleshort);
+                $record['enrolments'][] = ['courseid' => (int) $courseid, 'userid' => (int) $uid];
+                $log[] = get_string('onb_log_enrolled', 'local_kreck',
+                    (object) ['user' => $login, 'course' => $enrolcourse->shortname]);
+            }
+
             $this->store_batch($record);
             $log[] = get_string('onb_log_done', 'local_kreck', $this->batchid);
             return ['ok' => true, 'batchid' => $this->batchid, 'log' => $log, 'record' => $record, 'error' => null];
@@ -334,7 +378,23 @@ class engine {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/course/lib.php');
 
-        $removed = ['courses' => 0, 'users' => 0, 'cohorts' => 0, 'categories' => 0];
+        $removed = ['enrolments' => 0, 'courses' => 0, 'users' => 0, 'cohorts' => 0, 'categories' => 0];
+
+        // Un-enrol first, so enrolments into pre-existing courses are undone
+        // (enrolments into courses we also delete below vanish with the course).
+        if (!empty($record['enrolments'])) {
+            $manual = enrol_get_plugin('manual');
+            foreach ($record['enrolments'] as $en) {
+                if (!$DB->record_exists('course', ['id' => $en['courseid']])) {
+                    continue;
+                }
+                $instance = $DB->get_record('enrol', ['courseid' => $en['courseid'], 'enrol' => 'manual']);
+                if ($instance) {
+                    $manual->unenrol_user($instance, $en['userid']);
+                    $removed['enrolments']++;
+                }
+            }
+        }
 
         // Courses (this also removes their modules).
         foreach ($record['courses'] ?? [] as $cid) {
@@ -589,6 +649,28 @@ class engine {
         }
         $roleid = $DB->get_field('role', 'id', ['shortname' => $roleshort]);
         $plugin->enrol_user($instance, $userid, $roleid);
+    }
+
+    /**
+     * Map a human role label onto a Moodle role shortname.
+     *
+     * @param string $label
+     * @return string
+     */
+    protected function normalise_role(string $label): string {
+        $l = strtolower(trim($label));
+        $map = [
+            'teacher' => 'editingteacher', 'editing teacher' => 'editingteacher', 'editingteacher' => 'editingteacher',
+            'lecturer' => 'editingteacher', 'instructor' => 'editingteacher',
+            'non-editing teacher' => 'teacher', 'nonediting teacher' => 'teacher', 'assistant' => 'teacher',
+            'tutor' => 'teacher', 'ta' => 'teacher',
+            'student' => 'student', 'learner' => 'student', 'pupil' => 'student',
+            'manager' => 'manager', 'admin' => 'manager', 'principal' => 'manager', 'head' => 'manager',
+        ];
+        if (isset($map[$l])) {
+            return $map[$l];
+        }
+        return in_array($l, ['editingteacher', 'teacher', 'student', 'manager'], true) ? $l : 'student';
     }
 
     /**

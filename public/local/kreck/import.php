@@ -127,10 +127,15 @@ if ($action === 'confirm' && confirm_sesskey()) {
         $lines[] = get_string('onb_plan_cats', 'local_kreck', (object) [
             'create' => count($plan['categories_create']), 'exist' => count($plan['categories_exist'])]);
         $lines[] = get_string('onb_plan_modules', 'local_kreck', $plan['modules_total']);
-    } else {
+    } else if ($type === 'students') {
         $lines[] = get_string('onb_plan_students', 'local_kreck', $plan['students_create']);
         $lines[] = get_string('onb_plan_cohorts', 'local_kreck', (object) [
             'create' => count($plan['cohorts_create']), 'exist' => count($plan['cohorts_exist'])]);
+    } else if ($type === 'staff') {
+        $lines[] = get_string('onb_plan_users', 'local_kreck', (object) [
+            'create' => count($plan['users_create']), 'exist' => count($plan['users_exist'])]);
+    } else if ($type === 'enrolments') {
+        $lines[] = get_string('onb_plan_enrolments', 'local_kreck', $plan['enrolments']);
     }
     foreach ($validation['warnings'] as $w) {
         $lines[] = 'WARNING: ' . $w;

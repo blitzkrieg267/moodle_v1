@@ -270,6 +270,27 @@ class csv_importer {
         return $out;
     }
 
+    /**
+     * @param array $rows
+     * @return array enrolments[] fragment list.
+     */
+    public static function enrol_from_rows(array $rows): array {
+        $out = [];
+        foreach ($rows as $r) {
+            $user = $r['user'] ?? '';
+            $course = $r['course'] ?? '';
+            if ($user === '' || $course === '') {
+                continue;
+            }
+            $e = ['user' => $user, 'course' => $course];
+            if (($r['role'] ?? '') !== '') {
+                $e['role'] = $r['role'];
+            }
+            $out[] = $e;
+        }
+        return $out;
+    }
+
     // ---- Single-CSV convenience entry points --------------------------------
 
     /**

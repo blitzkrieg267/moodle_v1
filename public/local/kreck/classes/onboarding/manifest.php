@@ -136,6 +136,16 @@ class manifest {
     }
 
     /**
+     * Enrolments into existing or just-created courses:
+     * [{user: email|username, course: shortname, role?}].
+     *
+     * @return array
+     */
+    public function enrolments(): array {
+        return $this->data['enrolments'] ?? [];
+    }
+
+    /**
      * Institution/batch metadata.
      *
      * @return array

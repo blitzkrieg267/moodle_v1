@@ -209,9 +209,15 @@ class stager {
             }
         }
 
-        if ($type === 'students') {
-            return ['students' => csv_importer::students_from_rows($assoc)];
+        switch ($type) {
+            case 'students':
+                return ['students' => csv_importer::students_from_rows($assoc)];
+            case 'staff':
+                return ['users' => csv_importer::staff_from_rows($assoc)];
+            case 'enrolments':
+                return ['enrolments' => csv_importer::enrol_from_rows($assoc)];
+            default:
+                return ['courses' => csv_importer::courses_from_rows($assoc)];
         }
-        return ['courses' => csv_importer::courses_from_rows($assoc)];
     }
 }

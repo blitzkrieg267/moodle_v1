@@ -51,6 +51,8 @@ class field_registry {
         return [
             'courses' => 'import_type_courses',
             'students' => 'import_type_students',
+            'staff' => 'import_type_staff',
+            'enrolments' => 'import_type_enrolments',
         ];
     }
 
@@ -85,13 +87,32 @@ class field_registry {
                 ['key' => 'username', 'label' => 'Username', 'required' => false,
                     'synonyms' => ['user name', 'login', 'user id', 'userid']],
                 ['key' => 'firstname', 'label' => 'First name', 'required' => true,
-                    'synonyms' => ['first name', 'given name', 'forename', 'name']],
+                    'synonyms' => ['first name', 'given name', 'forename', 'name', 'first', 'given', 'fname']],
                 ['key' => 'lastname', 'label' => 'Last name', 'required' => true,
-                    'synonyms' => ['last name', 'surname', 'family name']],
+                    'synonyms' => ['last name', 'surname', 'family name', 'last', 'family', 'lname']],
                 ['key' => 'email', 'label' => 'Email', 'required' => true, 'type' => 'email',
                     'synonyms' => ['e-mail', 'email address', 'mail', 'e mail'], 'sniff' => self::EMAIL_RE],
                 ['key' => 'cohort', 'label' => 'Cohort ID', 'required' => false,
                     'synonyms' => ['cohort', 'class', 'group', 'cohort id', 'stream']],
+            ],
+            'staff' => [
+                ['key' => 'username', 'label' => 'Username', 'required' => false,
+                    'synonyms' => ['user name', 'login', 'user id', 'staff id']],
+                ['key' => 'firstname', 'label' => 'First name', 'required' => true,
+                    'synonyms' => ['first name', 'given name', 'forename', 'name', 'first', 'given', 'fname']],
+                ['key' => 'lastname', 'label' => 'Last name', 'required' => true,
+                    'synonyms' => ['last name', 'surname', 'family name', 'last', 'family', 'lname']],
+                ['key' => 'email', 'label' => 'Email', 'required' => true, 'type' => 'email',
+                    'synonyms' => ['e-mail', 'email address', 'mail', 'e mail', 'work email'], 'sniff' => self::EMAIL_RE],
+            ],
+            'enrolments' => [
+                ['key' => 'user', 'label' => 'User (email or username)', 'required' => true, 'type' => 'email',
+                    'synonyms' => ['email', 'e-mail', 'mail', 'username', 'user id', 'learner', 'student', 'teacher'],
+                    'sniff' => self::EMAIL_RE],
+                ['key' => 'course', 'label' => 'Course short name', 'required' => true,
+                    'synonyms' => ['course', 'course code', 'shortname', 'short name', 'code', 'ref', 'class']],
+                ['key' => 'role', 'label' => 'Role', 'required' => false,
+                    'synonyms' => ['role', 'as', 'type', 'position', 'enrol as']],
             ],
         ];
         return $registry[$type] ?? [];
