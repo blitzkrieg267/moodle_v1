@@ -119,6 +119,33 @@ $string['onb_log_studentsgenerated'] = 'Generated {$a->count} students ({$a->pre
 $string['onb_knownbatches'] = 'Provisioned batches (available to roll back)';
 $string['onb_nobatches'] = 'No provisioned batches yet.';
 
+// Smart importer.
+$string['import_pagename'] = 'KRECK smart import';
+$string['import_intro'] = 'Upload any CSV or Excel file — your own layout, your own headers. KRECK guesses which column is which (and sniffs email columns even without a header), you confirm the mapping once, and it validates and creates the records. The mapping is remembered for next time.';
+$string['import_type'] = 'What are you importing?';
+$string['import_type_courses'] = 'Courses';
+$string['import_type_students'] = 'Students / learners';
+$string['import_file'] = 'CSV or Excel file (.csv, .xlsx)';
+$string['import_upload'] = 'Upload & preview';
+$string['import_skip'] = '— Don\'t import —';
+$string['import_mapheading'] = 'Map your columns';
+$string['import_mapintro'] = 'We guessed how your columns map to KRECK fields. Fix anything wrong, set columns you don\'t need to "Don\'t import", then preview. Fields marked * are required.';
+$string['import_rows'] = '{$a} data rows found.';
+$string['import_col_header'] = 'Your column';
+$string['import_col_field'] = 'Maps to';
+$string['import_col_sample'] = 'Sample values';
+$string['import_requirednote'] = 'Fields marked * are required. Email columns are detected by their shape even if the header is unusual.';
+$string['import_confirm'] = 'Preview & validate';
+$string['import_report'] = 'Validation report';
+$string['import_saved'] = 'This column layout is remembered — the next file with these headers maps itself.';
+$string['import_missingrequired'] = 'These required fields are not mapped yet: {$a}';
+$string['import_provision'] = 'Create them now';
+$string['import_backtomap'] = 'Back to mapping';
+$string['import_nostaged'] = 'That import session expired or was not found. Please upload the file again.';
+$string['import_done'] = 'Imported successfully. Batch id: {$a} — roll it back from the onboarding console if needed.';
+$string['import_failed'] = 'Import failed and the partial batch was rolled back: {$a}';
+$string['import_again'] = 'Import another file';
+
 // Blueprint content.
 $string['onb_generaltitle'] = 'General course administration';
 $string['onb_weektitle'] = 'Week {$a}';

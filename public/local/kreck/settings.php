@@ -79,3 +79,11 @@ $ADMIN->add('localplugins', new admin_externalpage(
     new moodle_url('/local/kreck/onboarding.php'),
     'local/kreck:manage'
 ));
+
+// Smart importer (map any spreadsheet).
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_import',
+    get_string('import_pagename', 'local_kreck'),
+    new moodle_url('/local/kreck/import.php'),
+    'local/kreck:manage'
+));
