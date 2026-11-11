@@ -29,7 +29,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026111104;        // YYYYMMDDXX.
+$plugin->version   = 2026111105;        // YYYYMMDDXX.
 $plugin->requires  = 2025041400;        // Moodle 5.0 and up.
 $plugin->component = 'local_kreck';
 $plugin->maturity  = MATURITY_ALPHA;
