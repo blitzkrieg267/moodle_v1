@@ -57,6 +57,32 @@
     background-color: #0a1420 !important;
 }
 
+// Menus hanging off the slate bar (user menu, edit-mode menu, etc.) render on a
+// light/dark surface of their own, so their items must NOT inherit the bar's
+// light text — that washes them out. Restore the theme-aware dropdown colour
+// and give only the hovered/active row the teal highlight. Selectors are
+// written flat to out-specify the navbar's own `a:not(.btn)` rule.
+.navbar.fixed-top .dropdown-menu a:not(.btn),
+.navbar.fixed-top .dropdown-menu .dropdown-item,
+.navbar.fixed-top .dropdown-menu .dropdown-item-text,
+.navbar.fixed-top .dropdown-menu label,
+.navbar.fixed-top .dropdown-menu .menu-action-text {
+    color: var(--bs-dropdown-link-color, var(--kreck-ink));
+}
+.navbar.fixed-top .dropdown-menu .text-muted,
+.navbar.fixed-top .dropdown-menu .dimmed_text {
+    color: var(--bs-secondary-color, var(--kreck-ink-muted)) !important;
+}
+.navbar.fixed-top .dropdown-menu a:not(.btn):hover,
+.navbar.fixed-top .dropdown-menu a:not(.btn):focus,
+.navbar.fixed-top .dropdown-menu .dropdown-item:hover,
+.navbar.fixed-top .dropdown-menu .dropdown-item:focus,
+.navbar.fixed-top .dropdown-menu .dropdown-item.active,
+.navbar.fixed-top .dropdown-menu .dropdown-item[aria-current="true"] {
+    color: #ffffff;
+    background-color: var(--kreck-teal);
+}
+
 // --- Drawers: clean side surfaces -------------------------------------------
 .drawer {
     background-color: var(--kreck-surface);

@@ -27,7 +27,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026111002;        // YYYYMMDDXX.
+$plugin->version   = 2026111106;        // YYYYMMDDXX.
 $plugin->requires  = 2025041400;        // Moodle 5.0 and up (verified on 5.3 and 6.0).
 $plugin->component = 'theme_microlearn';
 // No theme_boost version is pinned: config.php's parents=['boost'] already
