@@ -15,7 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Turns a simple CSV (the kind a client hands over) into an onboarding manifest.
+ * Turns the client intake tables (CSV or workbook) into an onboarding manifest.
+ *
+ * The column vocabulary lives here and is shared by the CSV paste mode and the
+ * Excel workbook upload. Only user-supplied fields are recognised; everything
+ * the system fills itself (course format, activities, auth, ...) is omitted.
  *
  * @package   local_kreck
  * @copyright 2026 KRECK MicroLearn
@@ -27,60 +31,114 @@ namespace local_kreck\onboarding;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Builds manifest fragments from CSV text. Courses use the default blueprint.
+ * Builds manifest fragments from intake tables. Courses use the default blueprint.
  */
 class csv_importer {
 
-    /**
-     * Columns recognised in a courses CSV (header row, any order, extras ignored).
-     *
-     * @var string[]
-     */
+    /** @var string[] Categories sheet columns. */
+    const CATEGORY_COLUMNS = ['category_path'];
+    /** @var string[] Staff sheet columns. */
+    const STAFF_COLUMNS = ['username', 'firstname', 'lastname', 'email'];
+    /** @var string[] Cohorts sheet columns. */
+    const COHORT_COLUMNS = ['name', 'idnumber'];
+    /** @var string[] Students sheet columns. */
+    const STUDENT_COLUMNS = ['username', 'firstname', 'lastname', 'email', 'cohort'];
+    /** @var string[] Courses sheet columns. */
     const COURSE_COLUMNS = ['fullname', 'shortname', 'category_path', 'numsections',
         'startdate', 'summary', 'teachers', 'cohorts', 'format'];
 
     /**
-     * Columns recognised in a students CSV.
+     * Map a 2D table (first row = header) to associative rows, keeping only
+     * allowed columns and dropping empty rows.
      *
-     * @var string[]
-     */
-    const STUDENT_COLUMNS = ['username', 'firstname', 'lastname', 'email', 'cohort'];
-
-    /**
-     * Parse CSV text into rows keyed by header name.
-     *
-     * @param string $csv
-     * @param string[] $allowed Columns to keep.
+     * @param array $table List of rows (each a list of cell values).
+     * @param string[] $allowed
      * @return array List of associative rows.
      */
-    protected static function rows(string $csv, array $allowed): array {
-        $csv = preg_replace('/^\xEF\xBB\xBF/', '', trim($csv)); // Strip BOM.
-        if ($csv === '') {
-            return [];
+    public static function map_table(array $table, array $allowed): array {
+        // Compact lookup so "Full name", "Start date", "Number of weeks" etc.
+        // all resolve to the right key.
+        $compactallowed = [];
+        foreach ($allowed as $k) {
+            $compactallowed[preg_replace('/[^a-z0-9]/', '', $k)] = $k;
         }
-        $lines = preg_split('/\r\n|\r|\n/', $csv);
-        $header = null;
+        $aliases = [
+            'coursename' => 'fullname', 'course' => 'fullname',
+            'coursecode' => 'shortname', 'code' => 'shortname',
+            'categorypath' => 'category_path', 'category' => 'category_path',
+            'weeks' => 'numsections', 'numberofweeks' => 'numsections', 'sections' => 'numsections',
+            'startdate' => 'startdate', 'start' => 'startdate',
+            'teacheremails' => 'teachers', 'teacheremail' => 'teachers', 'teacher' => 'teachers',
+            'cohortids' => 'cohorts', 'cohortid' => 'cohort',
+        ];
+
+        $resolve = static function (string $raw) use ($allowed, $compactallowed, $aliases): ?string {
+            $key = strtolower(trim($raw));
+            $key = trim(preg_replace('/\(.*?\)/', '', $key)); // Drop parenthetical hints.
+            if (in_array($key, $allowed, true)) {
+                return $key;
+            }
+            $compact = preg_replace('/[^a-z0-9]/', '', $key);
+            if (isset($compactallowed[$compact]) ) {
+                return $compactallowed[$compact];
+            }
+            if (isset($aliases[$compact]) && in_array($aliases[$compact], $allowed, true)) {
+                return $aliases[$compact];
+            }
+            return null;
+        };
+
+        $map = null;
         $rows = [];
-        foreach ($lines as $line) {
-            if (trim($line) === '' || strpos(ltrim($line), '#') === 0) {
+        foreach ($table as $cells) {
+            $cells = array_map(static fn($v) => is_string($v) ? trim($v) : (string) ($v ?? ''), (array) $cells);
+            if ($map === null) {
+                if (!array_filter($cells, static fn($v) => $v !== '')) {
+                    continue; // Skip leading blank rows before the header.
+                }
+                $map = [];
+                foreach ($cells as $i => $name) {
+                    $key = $resolve($name);
+                    if ($key !== null) {
+                        $map[$i] = $key;
+                    }
+                }
                 continue;
             }
-            $fields = str_getcsv($line);
-            if ($header === null) {
-                $header = array_map(static fn($h) => strtolower(trim($h)), $fields);
+            // Skip an example/comment row (first cell starts with #).
+            if (isset($cells[0]) && strpos($cells[0], '#') === 0) {
                 continue;
             }
             $row = [];
-            foreach ($header as $i => $name) {
-                if (in_array($name, $allowed, true)) {
-                    $row[$name] = isset($fields[$i]) ? trim($fields[$i]) : '';
-                }
+            foreach ($map as $i => $key) {
+                $row[$key] = $cells[$i] ?? '';
             }
-            if (!empty(array_filter($row, static fn($v) => $v !== ''))) {
+            if (array_filter($row, static fn($v) => $v !== '')) {
                 $rows[] = $row;
             }
         }
         return $rows;
+    }
+
+    /**
+     * Parse CSV text into a 2D table.
+     *
+     * @param string $csv
+     * @return array
+     */
+    protected static function csv_to_table(string $csv): array {
+        $csv = preg_replace('/^\xEF\xBB\xBF/', '', trim($csv));
+        if ($csv === '') {
+            return [];
+        }
+        $table = [];
+        foreach (preg_split('/\r\n|\r|\n/', $csv) as $line) {
+            if (strpos(ltrim($line), '#') === 0) {
+                continue;
+            }
+            $table[] = str_getcsv($line);
+        }
+        return $table;
     }
 
     /**
@@ -96,6 +154,124 @@ class csv_importer {
         return array_values(array_filter(array_map('trim', explode(';', $value)), static fn($v) => $v !== ''));
     }
 
+    // ---- Per-entity builders from already-mapped associative rows ------------
+
+    /**
+     * @param array $rows
+     * @return array categories[] fragment list.
+     */
+    public static function categories_from_rows(array $rows): array {
+        $out = [];
+        foreach ($rows as $r) {
+            $path = $r['category_path'] ?? '';
+            if ($path === '') {
+                continue;
+            }
+            $parts = array_map('trim', explode('/', $path));
+            $out[] = ['name' => end($parts), 'category_path' => $path];
+        }
+        return $out;
+    }
+
+    /**
+     * @param array $rows
+     * @return array users[] fragment list.
+     */
+    public static function staff_from_rows(array $rows): array {
+        $out = [];
+        foreach ($rows as $r) {
+            if (($r['username'] ?? '') === '' && ($r['email'] ?? '') === '') {
+                continue;
+            }
+            $out[] = [
+                'username' => $r['username'] !== '' ? $r['username'] : $r['email'],
+                'firstname' => $r['firstname'] ?? '',
+                'lastname' => $r['lastname'] ?? '',
+                'email' => $r['email'] ?? '',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * @param array $rows
+     * @return array cohorts[] fragment list.
+     */
+    public static function cohorts_from_rows(array $rows): array {
+        $out = [];
+        foreach ($rows as $r) {
+            $name = $r['name'] ?? '';
+            $idnumber = $r['idnumber'] ?? '';
+            if ($name === '' && $idnumber === '') {
+                continue;
+            }
+            $out[] = ['name' => $name !== '' ? $name : $idnumber, 'idnumber' => $idnumber];
+        }
+        return $out;
+    }
+
+    /**
+     * @param array $rows
+     * @return array students[] fragment list.
+     */
+    public static function students_from_rows(array $rows): array {
+        $out = [];
+        foreach ($rows as $r) {
+            if (($r['username'] ?? '') === '' && ($r['email'] ?? '') === '') {
+                continue;
+            }
+            $student = [
+                'username' => $r['username'] !== '' ? $r['username'] : $r['email'],
+                'firstname' => $r['firstname'] ?? 'Learner',
+                'lastname' => $r['lastname'] ?? '',
+                'email' => $r['email'] ?? '',
+            ];
+            if (($r['cohort'] ?? '') !== '') {
+                $student['cohort'] = $r['cohort'];
+            }
+            $out[] = $student;
+        }
+        return $out;
+    }
+
+    /**
+     * @param array $rows
+     * @return array courses[] fragment list.
+     */
+    public static function courses_from_rows(array $rows): array {
+        $out = [];
+        foreach ($rows as $r) {
+            if (($r['shortname'] ?? '') === '' || ($r['fullname'] ?? '') === '') {
+                continue;
+            }
+            $course = [
+                'fullname' => $r['fullname'],
+                'shortname' => $r['shortname'],
+                'format' => ($r['format'] ?? '') !== '' ? $r['format'] : 'weeks',
+            ];
+            foreach (['category_path', 'startdate', 'summary'] as $k) {
+                if (($r[$k] ?? '') !== '') {
+                    $course[$k] = $r[$k];
+                }
+            }
+            if (($r['numsections'] ?? '') !== '') {
+                $course['numsections'] = (int) $r['numsections'];
+            }
+            $teachers = self::multi($r['teachers'] ?? '');
+            if ($teachers) {
+                $course['teachers'] = $teachers;
+            }
+            $cohorts = self::multi($r['cohorts'] ?? '');
+            if ($cohorts) {
+                $course['cohorts'] = $cohorts;
+            }
+            $out[] = $course;
+        }
+        return $out;
+    }
+
+    // ---- Single-CSV convenience entry points --------------------------------
+
     /**
      * Build a manifest fragment { courses: [...] } from a courses CSV.
      *
@@ -103,39 +279,8 @@ class csv_importer {
      * @return array
      */
     public static function courses_to_manifest(string $csv): array {
-        $courses = [];
-        foreach (self::rows($csv, self::COURSE_COLUMNS) as $row) {
-            if (($row['shortname'] ?? '') === '' || ($row['fullname'] ?? '') === '') {
-                continue;
-            }
-            $course = [
-                'fullname' => $row['fullname'],
-                'shortname' => $row['shortname'],
-                'format' => ($row['format'] ?? '') !== '' ? $row['format'] : 'weeks',
-            ];
-            if (($row['category_path'] ?? '') !== '') {
-                $course['category_path'] = $row['category_path'];
-            }
-            if (($row['numsections'] ?? '') !== '') {
-                $course['numsections'] = (int) $row['numsections'];
-            }
-            if (($row['startdate'] ?? '') !== '') {
-                $course['startdate'] = $row['startdate'];
-            }
-            if (($row['summary'] ?? '') !== '') {
-                $course['summary'] = $row['summary'];
-            }
-            $teachers = self::multi($row['teachers'] ?? '');
-            if ($teachers) {
-                $course['teachers'] = $teachers;
-            }
-            $cohorts = self::multi($row['cohorts'] ?? '');
-            if ($cohorts) {
-                $course['cohorts'] = $cohorts;
-            }
-            $courses[] = $course;
-        }
-        return ['courses' => $courses];
+        $rows = self::map_table(self::csv_to_table($csv), self::COURSE_COLUMNS);
+        return ['courses' => self::courses_from_rows($rows)];
     }
 
     /**
@@ -145,22 +290,7 @@ class csv_importer {
      * @return array
      */
     public static function students_to_manifest(string $csv): array {
-        $students = [];
-        foreach (self::rows($csv, self::STUDENT_COLUMNS) as $row) {
-            if (($row['username'] ?? '') === '' && ($row['email'] ?? '') === '') {
-                continue;
-            }
-            $student = [
-                'username' => $row['username'] !== '' ? $row['username'] : $row['email'],
-                'firstname' => $row['firstname'] ?? 'Learner',
-                'lastname' => $row['lastname'] ?? '',
-                'email' => $row['email'] ?? '',
-            ];
-            if (($row['cohort'] ?? '') !== '') {
-                $student['cohort'] = $row['cohort'];
-            }
-            $students[] = $student;
-        }
-        return ['students' => $students];
+        $rows = self::map_table(self::csv_to_table($csv), self::STUDENT_COLUMNS);
+        return ['students' => self::students_from_rows($rows)];
     }
 }

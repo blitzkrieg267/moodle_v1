@@ -44,6 +44,11 @@ if ($action === 'csvtemplate') {
         0, 0, false, true, 'text/csv');
     die;
 }
+if ($action === 'workbook') {
+    send_file(__DIR__ . '/samples/KRECK_Institution_Intake.xlsx', 'KRECK_Institution_Intake.xlsx',
+        0, 0, false, true, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    die;
+}
 
 $pageurl = new moodle_url('/local/kreck/onboarding.php');
 $PAGE->set_url($pageurl);
@@ -71,8 +76,19 @@ if ($data = $form->get_data()) {
     } else {
         try {
             $generatedjson = '';
+            $preview = in_array($data->mode, ['csv', 'workbook'], true);
             if ($data->mode === 'csv') {
                 $fragment = \local_kreck\onboarding\csv_importer::courses_to_manifest((string) $data->coursescsv);
+                $generatedjson = json_encode($fragment,
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                $manifest = new manifest($fragment);
+            } else if ($data->mode === 'workbook') {
+                $path = $form->save_temp_file('intakefile');
+                if (!$path) {
+                    throw new \moodle_exception('onb_wb_nofile', 'local_kreck');
+                }
+                $fragment = \local_kreck\onboarding\workbook_importer::from_file($path);
+                @unlink($path);
                 $generatedjson = json_encode($fragment,
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                 $manifest = new manifest($fragment);
@@ -80,7 +96,7 @@ if ($data = $form->get_data()) {
                 $manifest = manifest::from_json((string) $data->manifest);
             }
 
-            if ($data->mode === 'dryrun' || $data->mode === 'csv') {
+            if ($data->mode === 'dryrun' || $preview) {
                 $res = $engine->validate($manifest);
                 $plan = $res['plan'];
                 $lines = [
@@ -104,7 +120,7 @@ if ($data = $form->get_data()) {
                 foreach ($res['errors'] as $e) {
                     $lines[] = 'ERROR: ' . $e;
                 }
-                if ($data->mode === 'csv') {
+                if ($preview) {
                     $resulthtml = $OUTPUT->notification(get_string('onb_csv_built', 'local_kreck'),
                             $res['ok'] ? notification::NOTIFY_SUCCESS : notification::NOTIFY_WARNING)
                         . html_writer::tag('p', get_string('onb_csv_copy', 'local_kreck'))
@@ -136,7 +152,9 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('onboarding', 'local_kreck'));
 echo html_writer::tag('p', get_string('onb_intro', 'local_kreck'), ['class' => 'text-muted']);
 echo html_writer::div(
-    html_writer::link(new moodle_url($pageurl, ['action' => 'template']),
+    html_writer::link(new moodle_url($pageurl, ['action' => 'workbook']),
+        get_string('onb_downloadworkbook', 'local_kreck'), ['class' => 'btn btn-primary me-2'])
+    . html_writer::link(new moodle_url($pageurl, ['action' => 'template']),
         get_string('onb_downloadtemplate', 'local_kreck'), ['class' => 'btn btn-outline-secondary me-2'])
     . html_writer::link(new moodle_url($pageurl, ['action' => 'csvtemplate']),
         get_string('onb_downloadcsv', 'local_kreck'), ['class' => 'btn btn-outline-secondary']),

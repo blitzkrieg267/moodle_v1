@@ -43,9 +43,15 @@ class onboarding_form extends \moodleform {
             'dryrun' => get_string('onb_mode_dryrun', 'local_kreck'),
             'execute' => get_string('onb_mode_execute', 'local_kreck'),
             'csv' => get_string('onb_mode_csv', 'local_kreck'),
+            'workbook' => get_string('onb_mode_workbook', 'local_kreck'),
             'rollback' => get_string('onb_mode_rollback', 'local_kreck'),
         ]);
         $mform->setDefault('mode', 'dryrun');
+
+        $mform->addElement('filepicker', 'intakefile', get_string('onb_intakefile', 'local_kreck'),
+            null, ['accepted_types' => ['.xlsx']]);
+        $mform->addHelpButton('intakefile', 'onb_intakefile', 'local_kreck');
+        $mform->hideIf('intakefile', 'mode', 'neq', 'workbook');
 
         $mform->addElement('textarea', 'manifest', get_string('onb_manifest', 'local_kreck'),
             ['rows' => 16, 'cols' => 80, 'style' => 'font-family:monospace;']);
