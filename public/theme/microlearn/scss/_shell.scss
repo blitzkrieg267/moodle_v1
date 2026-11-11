@@ -83,6 +83,43 @@
     background-color: var(--kreck-teal);
 }
 
+// Active / current item IN the slate bar itself (the selected page). MDS gives
+// it a light fill, which washes out the bar's light text. Replace it with a
+// subtle translucent-white pill so the white text always keeps contrast — an
+// app-bar active state. Covers nav links, nav pills and the more-menu.
+// Moodle 5.3's primary nav renders each top-bar item as an `.mds-nav-pill`,
+// and marks the current page with `.mds-nav-pill--selected` + aria-current.
+// MDS fills that selected pill with a light surface token, which washes out
+// the bar's light text. We cover every shape the selected/active state can
+// take — the MDS pill class, the ARIA hook, and classic Bootstrap `.active`.
+.navbar.fixed-top .mds-nav-pill--selected,
+.navbar.fixed-top .mds-nav-pill.active,
+.navbar.fixed-top .mds-nav-pill[aria-current="page"],
+.navbar.fixed-top .nav-link.active,
+.navbar.fixed-top .nav-link[aria-current="page"],
+.navbar.fixed-top .nav-item.active > .nav-link,
+.navbar.fixed-top li.active > a.nav-link,
+.navbar.fixed-top a.active:not(.btn),
+.navbar.fixed-top a[aria-current="page"]:not(.btn) {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, .16) !important;
+    border-radius: 999px;
+}
+// Keep every descendant of the selected pill (label span, icon) white too,
+// so no inner MDS token re-darkens or re-lightens the text.
+.navbar.fixed-top .mds-nav-pill--selected *,
+.navbar.fixed-top .mds-nav-pill[aria-current="page"] *,
+.navbar.fixed-top .nav-link.active *,
+.navbar.fixed-top a[aria-current="page"]:not(.btn) * {
+    color: #ffffff !important;
+}
+.navbar.fixed-top .mds-nav-pill--selected:hover,
+.navbar.fixed-top .mds-nav-pill.active:hover,
+.navbar.fixed-top .nav-link.active:hover {
+    background-color: rgba(255, 255, 255, .24) !important;
+    color: #ffffff !important;
+}
+
 // --- Drawers: clean side surfaces -------------------------------------------
 .drawer {
     background-color: var(--kreck-surface);
