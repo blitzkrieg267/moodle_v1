@@ -105,5 +105,25 @@
         <INDEX NAME="userid-topic" UNIQUE="true" FIELDS="userid, topic"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="local_kreck_link" COMMENT="Cross-system deep-links to the KRECK SMS (Gibbon) for a course or user.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="entitytype" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="course | user"/>
+        <FIELD NAME="entitykey" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="course shortname or studentid"/>
+        <FIELD NAME="direction" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="togibbon" SEQUENCE="false"/>
+        <FIELD NAME="relurl" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false" COMMENT="Relative URL on the target system; prefix with the base URL."/>
+        <FIELD NAME="label" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="extid" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" COMMENT="External id (gibbonPersonID / gibbonCourseClassID)."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="entity-direction" UNIQUE="true" FIELDS="entitytype, entitykey, direction"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

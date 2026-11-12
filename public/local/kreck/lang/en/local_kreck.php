@@ -256,3 +256,28 @@ $string['privacy:metadata:local_kreck_topicstat:userid'] = 'The learner the stat
 $string['privacy:metadata:local_kreck_topicstat:topic'] = 'The topic.';
 $string['privacy:metadata:local_kreck_topicstat:attempts'] = 'Number of attempts.';
 $string['privacy:metadata:local_kreck_topicstat:wrong'] = 'Number of wrong answers.';
+
+// KRECK <-> Gibbon deep-links (Phase D).
+$string['gibbonbaseurl'] = 'KRECK SMS (Gibbon) base URL';
+$string['gibbonbaseurl_desc'] = 'The root URL of your KRECK SMS (Gibbon) site, e.g. https://sms.yourschool.edu. Used to turn the stored relative links into working "View in KRECK SMS" links on course and user pages. Leave blank to hide those links.';
+$string['viewinsms'] = 'View in KRECK SMS';
+
+// LMS -> SMS link & mark export (Phase D, Legs B & C).
+$string['exportlinks'] = 'Export LMS links to KRECK SMS';
+$string['exportlinks_intro'] = 'Download a links file describing the Moodle courses and activities this plugin provisioned. Import it on the KRECK SMS (Gibbon) side so staff can open each class and its activities directly in the LMS ("Open in KRECK LMS").';
+$string['exportlinks_nobatch'] = 'No onboarding batch found. Provision an institution from the onboarding console first, then return here to export its links.';
+$string['exportlinks_batch'] = 'Batch id';
+$string['exportlinks_courses'] = 'Courses';
+$string['exportlinks_activities'] = 'Activities';
+$string['exportlinks_download'] = 'Download links file';
+$string['exportlinks_preview'] = 'Preview (newest batch)';
+$string['exportmarks'] = 'Export marks to KRECK SMS';
+$string['exportmarks_intro'] = 'Download a marks file from the Moodle gradebook for a provisioned batch. Import it on the KRECK SMS (Gibbon) side to keep each learner\'s results on their school record.';
+$string['exportmarks_nobatch'] = 'No onboarding batch found. Provision an institution first, then return here to export marks.';
+$string['exportmarks_batch'] = 'Batch id';
+$string['exportmarks_courses'] = 'Courses';
+$string['exportmarks_learners'] = 'Learners';
+$string['exportmarks_download'] = 'Download marks (JSON)';
+$string['exportmarks_downloadcsv'] = 'Download marks (CSV)';
+$string['exportmarks_preview'] = 'Preview (newest batch)';
+$string['onb_created'] = 'Created';

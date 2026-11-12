@@ -44,6 +44,15 @@ if ($hassiteconfig) {
         4
     ));
 
+    // Base URL of the KRECK SMS (Gibbon), used to build "View in KRECK SMS" deep-links.
+    $settings->add(new admin_setting_configtext(
+        'local_kreck/gibbonbaseurl',
+        get_string('gibbonbaseurl', 'local_kreck'),
+        get_string('gibbonbaseurl_desc', 'local_kreck'),
+        '',
+        PARAM_URL
+    ));
+
     $settings->add(new admin_setting_configtext(
         'local_kreck/attendancewindow',
         get_string('attendancewindow', 'local_kreck'),
@@ -115,5 +124,21 @@ $ADMIN->add('localplugins', new admin_externalpage(
     'local_kreck_import',
     get_string('import_pagename', 'local_kreck'),
     new moodle_url('/local/kreck/import.php'),
+    'local/kreck:manage'
+));
+
+// LMS -> SMS link export (courses + activities back to Gibbon).
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_exportlinks',
+    get_string('exportlinks', 'local_kreck'),
+    new moodle_url('/local/kreck/export_links.php'),
+    'local/kreck:manage'
+));
+
+// LMS -> SMS marks export (gradebook back to Gibbon record-keeping).
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_exportmarks',
+    get_string('exportmarks', 'local_kreck'),
+    new moodle_url('/local/kreck/export_marks.php'),
     'local/kreck:manage'
 ));

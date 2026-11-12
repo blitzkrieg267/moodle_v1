@@ -174,6 +174,17 @@ class manifest {
     }
 
     /**
+     * Cross-system deep-links from the KRECK SMS (Gibbon): relative Gibbon URLs
+     * for courses (keyed by shortname) and students (keyed by studentid). Stored
+     * so Moodle can render "View in KRECK SMS" links. Optional.
+     *
+     * @return array ['courses' => [...], 'students' => [...]]
+     */
+    public function links(): array {
+        return $this->data['links'] ?? [];
+    }
+
+    /**
      * The effective section/module plan for a course: the author's sections if
      * given, otherwise the default "complete" blueprint, always with an
      * announcements forum in the general section.

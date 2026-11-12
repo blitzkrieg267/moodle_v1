@@ -287,6 +287,9 @@ class engine {
                 ];
                 $course = create_course($coursedata);
                 $record['courses'][] = (int) $course->id;
+                // shortname -> courseid map, so the Moodle->Gibbon links/marks export
+                // can reference the created courses. (Keeps the flat list above for rollback.)
+                $record['coursemap'][(string) $course->shortname] = (int) $course->id;
                 $log[] = get_string('onb_log_coursecreated', 'local_kreck', $course->shortname);
 
                 // Sections + modules.
@@ -360,6 +363,13 @@ class engine {
                     (object) ['user' => $login, 'course' => $enrolcourse->shortname]);
             }
 
+            // 5. Cross-system deep-links from the KRECK SMS (relative Gibbon URLs),
+            //    so Moodle can render "View in KRECK SMS" links on course/user pages.
+            $linkcount = $this->store_links($manifest->links(), $record);
+            if ($linkcount) {
+                $log[] = 'Stored ' . $linkcount . ' KRECK SMS back-link(s).';
+            }
+
             $this->store_batch($record);
             $log[] = get_string('onb_log_done', 'local_kreck', $this->batchid);
             return ['ok' => true, 'batchid' => $this->batchid, 'log' => $log, 'record' => $record, 'error' => null];
@@ -370,6 +380,58 @@ class engine {
             return ['ok' => false, 'batchid' => $this->batchid, 'log' => $log, 'record' => $record,
                 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Upsert the cross-system deep-links carried in the manifest's `links`
+     * section (relative Gibbon URLs). Idempotent on (entitytype, entitykey,
+     * direction). Returns how many links were stored.
+     *
+     * @param array $links ['courses'=>[shortname=>['url','gibbonCourseClassID']], 'students'=>[studentid=>[...]]]
+     * @param array $record Batch record (created link ids tracked for rollback).
+     * @return int
+     */
+    protected function store_links(array $links, array &$record): int {
+        global $DB, $USER;
+        if (empty($links)) {
+            return 0;
+        }
+        $now = time();
+        $uid = isset($USER->id) ? (int) $USER->id : 0;
+        $rows = [];
+        foreach (($links['courses'] ?? []) as $shortname => $info) {
+            $rows[] = ['course', (string) $shortname, (string) ($info['url'] ?? ''), (string) ($info['gibbonCourseClassID'] ?? '')];
+        }
+        foreach (($links['students'] ?? []) as $sid => $info) {
+            $rows[] = ['user', (string) $sid, (string) ($info['url'] ?? ''), (string) ($info['gibbonPersonID'] ?? '')];
+        }
+        $count = 0;
+        foreach ($rows as [$etype, $ekey, $url, $extid]) {
+            if ($url === '' || $ekey === '') {
+                continue;
+            }
+            $data = (object) [
+                'entitytype'   => $etype,
+                'entitykey'    => $ekey,
+                'direction'    => 'togibbon',
+                'relurl'       => $url,
+                'extid'        => $extid !== '' ? $extid : null,
+                'usermodified' => $uid,
+                'timemodified' => $now,
+            ];
+            $existing = $DB->get_record('local_kreck_link',
+                ['entitytype' => $etype, 'entitykey' => $ekey, 'direction' => 'togibbon']);
+            if ($existing) {
+                $data->id = $existing->id;
+                $DB->update_record('local_kreck_link', $data);
+            } else {
+                $data->timecreated = $now;
+                $newid = $DB->insert_record('local_kreck_link', $data);
+                $record['links'][] = (int) $newid;
+            }
+            $count++;
+        }
+        return $count;
     }
 
     // ---------------------------------------------------------------- Rollback.
@@ -423,6 +485,13 @@ class engine {
             if ($DB->record_exists('course', ['id' => $cid])) {
                 delete_course($cid, false);
                 $removed['courses']++;
+            }
+        }
+
+        // KRECK cross-system links created by this batch.
+        foreach ($record['links'] ?? [] as $linkid) {
+            if ($DB->delete_records('local_kreck_link', ['id' => $linkid])) {
+                $removed['links'] = ($removed['links'] ?? 0) + 1;
             }
         }
 
@@ -483,6 +552,17 @@ class engine {
         $index = array_filter(explode(',', (string) get_config(self::PLUGIN, self::INDEX)));
         $index[] = $record['batchid'];
         set_config(self::INDEX, implode(',', array_unique($index)), self::PLUGIN);
+    }
+
+    /**
+     * Public accessor for a stored batch record (coursemap, links, etc.),
+     * used by the link/mark exporters.
+     *
+     * @param string $batchid
+     * @return array|null
+     */
+    public function get_batch(string $batchid): ?array {
+        return $this->load_batch($batchid);
     }
 
     /**
