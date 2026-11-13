@@ -84,25 +84,13 @@ $string['landingenabled'] = 'Public landing page';
 $string['landingenabled_desc'] = 'Send anonymous visitors from the site front page to a friendly public page showing the institution, its categories and the courses offered. Logged-in users are unaffected. Turn off to restore Moodle\'s default front page.';
 $string['landingintro'] = 'Landing page intro text';
 $string['landingintro_desc'] = 'Optional short paragraph shown on the public landing page. Leave blank to use the site summary.';
+$string['landing_aw_placeholder'] = 'Ask KRECK anything…';
 $string['landing_eyebrow'] = 'Welcome to';
-$string['landing_defaultintro'] = 'Browse the subjects and courses offered here. Log in to start learning.';
-$string['landing_courses'] = 'Subjects on offer';
+$string['landing_defaultintro'] = 'Explore the courses offered here. Log in to start learning.';
 $string['landing_dashboard'] = 'Go to my dashboard';
-$string['landing_browse'] = 'Browse subjects';
-$string['landing_qa_subjects'] = 'Browse subjects';
-$string['landing_qa_subjects_d'] = 'See every subject offered.';
-$string['landing_qa_pathway'] = 'Learning pathway';
-$string['landing_qa_pathway_d'] = 'How the stages fit together.';
-$string['landing_qa_login'] = 'Log in';
-$string['landing_qa_login_d'] = 'Students, teachers and parents.';
-$string['landing_qa_enquire'] = 'Enquire';
-$string['landing_qa_enquire_d'] = 'Talk to the school office.';
-$string['landing_pathway_title'] = 'The learning pathway';
-$string['landing_pathway_sub'] = 'A clear route through every stage we offer.';
-$string['landing_subjectcount'] = '{$a} subjects';
-$string['landing_viewsubjects'] = 'View subjects';
-$string['landing_explorer_sub'] = 'Search and browse everything taught here.';
-$string['landing_searchph'] = 'Search subjects…';
+$string['landing_browse'] = 'Explore courses';
+$string['landing_searchph'] = 'Search courses by name, code, category, or content…';
+$string['landing_noresults'] = 'No courses match that search. Try another name, code, or subject.';
 $string['landing_feat1_t'] = 'Keep the momentum going';
 $string['landing_feat1_d'] = 'Short lessons built for a few minutes at a time, with streaks and instant quiz feedback that keep learners coming back.';
 $string['landing_feat1_chip'] = 'Streaks & instant feedback';
@@ -119,11 +107,33 @@ $string['landing_cookie_title'] = 'This site uses cookies';
 $string['landing_cookie_body'] = 'We use essential cookies to keep you signed in and remember your preferences. Choose whether to allow optional cookies.';
 $string['landing_cookie_reject'] = 'Reject all';
 $string['landing_cookie_accept'] = 'Accept all cookies';
-$string['landing_stat_categories'] = 'Categories';
-$string['landing_stat_subjects'] = 'Subjects';
-$string['landing_stat_activities'] = 'Learning activities';
+$string['landing_stat_summary'] = 'KRECK course and learner totals';
+$string['landing_stat_courses'] = 'Courses';
+$string['landing_stat_categories'] = 'Course categories';
+$string['landing_stat_activities'] = 'Visible activities';
 $string['landing_stat_learners'] = 'Learners';
 $string['landing_nocourses'] = 'Courses will appear here once they are published.';
+
+// Landing page glass course wall.
+$string['landingcourses'] = 'Show the course wall on the landing page';
+$string['landingcourses_desc'] = 'Display every course in a visible category as a searchable glass card, with live content stats and its course description.';
+$string['landing_wall_eyebrow'] = 'Your KRECK learning space';
+$string['landing_featured_title'] = 'Find your next course';
+$string['landing_featured_sub'] = 'Explore every published course. Each card shows its real activities, lessons, discussions, and course description.';
+$string['landing_card_course'] = 'Course {$a}';
+$string['landing_card_activities'] = 'Activities';
+$string['landing_card_lessons'] = 'Lessons';
+$string['landing_card_discussions'] = 'Discussions';
+$string['landing_card_viewcourse'] = 'View course';
+$string['landing_card_readmore'] = 'Read more';
+$string['landing_card_readless'] = 'Read less';
+$string['landing_card_nodesc'] = 'No description available for this course yet.';
+
+$string['landingcoursesdebug'] = 'Debug the course wall';
+$string['landingcoursesdebug_desc'] = 'Log database errors from the course wall query to the server error log, and show a debug notice to site administrators on the landing page.';
+
+$string['changelogtitle'] = 'KRECK MicroLearn — what\'s new';
+$string['changelogmarkseen'] = 'Mark as read';
 
 // Onboarding engine.
 $string['onboarding'] = 'KRECK onboarding & provisioning';

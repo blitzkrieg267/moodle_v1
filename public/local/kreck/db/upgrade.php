@@ -56,5 +56,35 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026111107, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026111301) {
+        // Landing page UX refresh: frosted-glass featured course cards with live
+        // stats (activities, lessons, discussions) and read-more descriptions.
+        // Records the changelog version so admins can see what changed on upgrade.
+        set_config('local_kreck/changelogversion', 2026111301);
+
+        upgrade_plugin_savepoint(true, 2026111301, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111302) {
+        // Version bump to force upgrade recognition and cache invalidation.
+        set_config('local_kreck/changelogversion', 2026111302);
+
+        upgrade_plugin_savepoint(true, 2026111302, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111303) {
+        // Accessible, independently actionable featured course cards.
+        set_config('local_kreck/changelogversion', 2026111303);
+
+        upgrade_plugin_savepoint(true, 2026111303, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111304) {
+        // Replace the duplicate course listings with the searchable course wall.
+        set_config('local_kreck/changelogversion', 2026111304);
+
+        upgrade_plugin_savepoint(true, 2026111304, 'local', 'kreck');
+    }
+
     return true;
 }
