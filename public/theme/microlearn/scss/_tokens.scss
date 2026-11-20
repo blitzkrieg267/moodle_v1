@@ -11,21 +11,21 @@
 
 :root {
     // --- KRECK reference palette (used by our own components too) -----------
-    --kreck-slate-900: #0f1e2e;
-    --kreck-slate-800: #16293b;
-    --kreck-slate-700: #1f374d;
-    --kreck-teal:      #1e8a74;
-    --kreck-teal-600:  #1a7c68;
-    --kreck-teal-700:  #166a59;
-    --kreck-teal-050:  #e8f4f1;
-    --kreck-amber:     #f2a43c;
-    --kreck-amber-600: #e0912a;
-    --kreck-amber-050: #fdf1df;
+    --kreck-slate-900: #10150d;
+    --kreck-slate-800: #20301a;
+    --kreck-slate-700: #2d3d17;
+    --kreck-teal:      #52701f;
+    --kreck-teal-600:  #466119;
+    --kreck-teal-700:  #3c5618;
+    --kreck-teal-050:  #eef1e8;
+    --kreck-amber:     #e6b765;
+    --kreck-amber-600: #d9a24e;
+    --kreck-amber-050: #f6f0e0;
     --kreck-steel:     #2f6da3;
     --kreck-surface:        #ffffff;
     --kreck-surface-subtle: #f5f7fa;
-    --kreck-ink:        #13212e;
-    --kreck-ink-muted:  #5a6b7b;
+    --kreck-ink:        #10150d;
+    --kreck-ink-muted:  #5b6450;
 
     // --- Primary interactive (teal) -----------------------------------------
     --mds-bg-interactive-primary-default:       var(--kreck-teal);
@@ -55,12 +55,12 @@
 // --- Dark mode --------------------------------------------------------------
 // Keep the brand hues but lift them slightly for contrast on deep slate.
 [data-bs-theme="dark"] {
-    --kreck-surface:        #0f1e2e;
-    --kreck-surface-subtle: #0c1826;
+    --kreck-surface:        #10150d;
+    --kreck-surface-subtle: #0c1108;
 
-    --mds-bg-interactive-primary-default: #26a085;
-    --mds-bg-interactive-primary-hover:   #2fb296;
+    --mds-bg-interactive-primary-default: #7ba52e;
+    --mds-bg-interactive-primary-hover:   #8fc234;
     --mds-bg-interactive-primary-active:  var(--kreck-teal);
-    --mds-text-link-primary-default:      #5fd3b7;
-    --mds-text-link-primary-hover:        #7ee0c8;
+    --mds-text-link-primary-default:      #cfe06a;
+    --mds-text-link-primary-hover:        #d9e87a;
 }

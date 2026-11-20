@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A cross-system deep-link to the KRECK SMS (Gibbon).
+ * A cross-system deep-link to the KRECK SMS.
  *
  * @package   local_kreck
  * @copyright 2026 KRECK MicroLearn
@@ -27,7 +27,7 @@ namespace local_kreck\persistent;
 use core\persistent;
 
 /**
- * Persistent for a stored back-link (course/user -> Gibbon relative URL).
+ * Persistent for a stored back-link (course/user -> SMS relative URL).
  */
 class link extends persistent {
 

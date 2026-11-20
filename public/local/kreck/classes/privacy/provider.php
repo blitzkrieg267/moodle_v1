@@ -93,6 +93,20 @@ class provider implements
             'wrong' => 'privacy:metadata:local_kreck_topicstat:wrong',
         ], 'privacy:metadata:local_kreck_topicstat');
 
+        $collection->add_database_table('local_kreck_sync_receipt', [
+            'requestid' => 'privacy:metadata:local_kreck_sync_receipt:requestid',
+            'digest' => 'privacy:metadata:local_kreck_sync_receipt:digest',
+            'response' => 'privacy:metadata:local_kreck_sync_receipt:response',
+        ], 'privacy:metadata:local_kreck_sync_receipt');
+
+        $collection->add_database_table('local_kreck_sync_event', [
+            'eventid' => 'privacy:metadata:local_kreck_sync_event:eventid',
+            'eventtype' => 'privacy:metadata:local_kreck_sync_event:eventtype',
+            'entitytype' => 'privacy:metadata:local_kreck_sync_event:entitytype',
+            'entityid' => 'privacy:metadata:local_kreck_sync_event:entityid',
+            'payload' => 'privacy:metadata:local_kreck_sync_event:payload',
+        ], 'privacy:metadata:local_kreck_sync_event');
+
         return $collection;
     }
 
@@ -105,12 +119,20 @@ class provider implements
     public static function get_contexts_for_userid(int $userid): contextlist {
         global $DB;
         $contextlist = new contextlist();
+        $hascontext = false;
 
         foreach (self::TABLES as $table) {
             if ($DB->record_exists($table, ['userid' => $userid])) {
                 $contextlist->add_system_context();
+                $hascontext = true;
                 break;
             }
+        }
+        if (!$hascontext && $DB->record_exists('local_kreck_sync_event', [
+                'entitytype' => 'user',
+                'entityid' => (string) $userid,
+        ])) {
+            $contextlist->add_system_context();
         }
 
         return $contextlist;
@@ -123,12 +145,19 @@ class provider implements
      * @return void
      */
     public static function get_users_in_context(userlist $userlist): void {
+        global $DB;
+
         if (!$userlist->get_context() instanceof context_system) {
             return;
         }
         foreach (self::TABLES as $table) {
             $userlist->add_from_sql('userid', "SELECT userid FROM {{$table}}", []);
         }
+        $userlist->add_from_sql(
+            'userid',
+            "SELECT entityid AS userid FROM {local_kreck_sync_event} WHERE entitytype = :entitytype",
+            ['entitytype' => 'user']
+        );
     }
 
     /**
@@ -163,6 +192,16 @@ class provider implements
                 );
             }
         }
+        $events = $DB->get_records('local_kreck_sync_event', [
+            'entitytype' => 'user',
+            'entityid' => (string) $userid,
+        ]);
+        if ($events) {
+            writer::with_context($context)->export_data(
+                [get_string('pluginname', 'local_kreck'), 'sync_events'],
+                (object) ['records' => array_values($events)]
+            );
+        }
     }
 
     /**
@@ -179,6 +218,7 @@ class provider implements
         foreach (self::TABLES as $table) {
             $DB->delete_records($table);
         }
+        $DB->delete_records('local_kreck_sync_event', ['entitytype' => 'user']);
     }
 
     /**
@@ -198,6 +238,10 @@ class provider implements
             foreach (self::TABLES as $table) {
                 $DB->delete_records($table, ['userid' => $userid]);
             }
+            $DB->delete_records('local_kreck_sync_event', [
+                'entitytype' => 'user',
+                'entityid' => (string) $userid,
+            ]);
         }
     }
 
@@ -221,5 +265,12 @@ class provider implements
         foreach (self::TABLES as $table) {
             $DB->delete_records_select($table, "userid {$insql}", $inparams);
         }
+        $stringids = array_map('strval', $userids);
+        [$eventinsql, $eventparams] = $DB->get_in_or_equal($stringids, SQL_PARAMS_NAMED);
+        $DB->delete_records_select(
+            'local_kreck_sync_event',
+            "entitytype = :evententitytype AND entityid {$eventinsql}",
+            array_merge(['evententitytype' => 'user'], $eventparams)
+        );
     }
 }

@@ -27,6 +27,20 @@ defined('MOODLE_INTERNAL') || die();
 $callbacks = [
     [
         'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
+        'callback' => \local_kreck\hook_listener::class . '::add_theme_contrast_styles',
+    ],
+    [
+        'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
         'callback' => \local_kreck\hook_listener::class . '::add_sms_link',
+    ],
+    [
+        // Point the navbar logo at the KRECK welcome page (static brand anchor).
+        'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
+        'callback' => \local_kreck\hook_listener::class . '::retarget_logo',
+    ],
+    [
+        // Add a primary-nav "Home" item that opens the KRECK welcome page.
+        'hook' => \core\hook\navigation\primary_extend::class,
+        'callback' => \local_kreck\hook_listener::class . '::extend_primary_navigation',
     ],
 ];

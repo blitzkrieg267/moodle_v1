@@ -174,9 +174,9 @@ class manifest {
     }
 
     /**
-     * Cross-system deep-links from the KRECK SMS (Gibbon): relative Gibbon URLs
+     * Cross-system deep-links from the KRECK SMS: relative SMS URLs
      * for courses (keyed by shortname) and students (keyed by studentid). Stored
-     * so Moodle can render "View in KRECK SMS" links. Optional.
+     * so LMS can render "View in KRECK SMS" links. Optional.
      *
      * @return array ['courses' => [...], 'students' => [...]]
      */

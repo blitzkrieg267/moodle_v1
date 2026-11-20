@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Creates activity modules the native Moodle way (add_moduleinfo).
+ * Creates activity modules the native LMS way (add_moduleinfo).
  *
  * No custom tables, no hand-rolled DB inserts: every module is built with the
- * exact field set core's add_moduleinfo expects, verified against this Moodle.
+ * exact field set core's add_moduleinfo expects, verified against this LMS.
  *
  * @package   local_kreck
  * @copyright 2026 KRECK MicroLearn
@@ -111,6 +111,70 @@ class module_factory {
     }
 
     /**
+     * Convert a strict local date/time pair to a LMS timestamp.
+     *
+     * @param string $date ISO date (YYYY-MM-DD).
+     * @param string $time 24-hour time (HH:MM or HH:MM:SS).
+     * @param string $timezone IANA timezone from the source site.
+     * @param string $field Human-readable field name for validation errors.
+     * @return int
+     */
+    public static function timestamp(string $date, string $time, string $timezone, string $field): int {
+        $date = trim($date);
+        $time = trim($time);
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
+                || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $time)) {
+            throw new \moodle_exception('onb_invalidschedule', 'local_kreck', '', $field);
+        }
+
+        try {
+            $zone = new \DateTimeZone($timezone);
+        } catch (\Exception $e) {
+            throw new \moodle_exception('onb_invalidtimezone', 'local_kreck', '', $timezone);
+        }
+
+        $normalisedtime = strlen($time) === 5 ? $time . ':00' : $time;
+        $datetime = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $date . ' ' . $normalisedtime, $zone);
+        $errors = \DateTimeImmutable::getLastErrors();
+        if (!$datetime || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+                || $datetime->format('Y-m-d H:i:s') !== $date . ' ' . $normalisedtime) {
+            throw new \moodle_exception('onb_invalidschedule', 'local_kreck', '', $field);
+        }
+
+        return $datetime->getTimestamp();
+    }
+
+    /**
+     * Resolve an optional assignment date/time pair.
+     *
+     * @param array $spec Assignment fields.
+     * @param string $datekey Date field key.
+     * @param string $timekey Time field key.
+     * @param string $timezone IANA timezone.
+     * @param string $label Human-readable field name.
+     * @param bool $required Whether both values are mandatory.
+     * @return int Zero when an optional pair is empty.
+     */
+    protected static function assignment_timestamp(
+        array $spec,
+        string $datekey,
+        string $timekey,
+        string $timezone,
+        string $label,
+        bool $required = false
+    ): int {
+        $date = trim((string) ($spec[$datekey] ?? ''));
+        $time = trim((string) ($spec[$timekey] ?? ''));
+        if ($date === '' && $time === '' && !$required) {
+            return 0;
+        }
+        if ($date === '' || $time === '') {
+            throw new \moodle_exception('onb_invalidschedule', 'local_kreck', '', $label);
+        }
+        return self::timestamp($date, $time, $timezone, $label);
+    }
+
+    /**
      * Add the per-module-type required fields.
      *
      * @param \stdClass $mi
@@ -150,14 +214,25 @@ class module_factory {
                 break;
 
             case 'assign':
+                $timezone = trim((string) ($spec['timezone'] ?? date_default_timezone_get()));
+                $opendate = self::assignment_timestamp($spec, 'open_date', 'open_time', $timezone, 'opening date/time');
+                $duedate = self::assignment_timestamp($spec, 'due_date', 'due_time', $timezone, 'due date/time',
+                    !empty($spec['source_ref']));
+                $cutoffdate = self::assignment_timestamp($spec, 'cutoff_date', 'cutoff_time', $timezone, 'cutoff date/time');
+                if ($opendate > 0 && $duedate > 0 && $opendate >= $duedate) {
+                    throw new \moodle_exception('onb_invalidassignmentdates', 'local_kreck');
+                }
+                if ($cutoffdate > 0 && $duedate > 0 && $cutoffdate < $duedate) {
+                    throw new \moodle_exception('onb_invalidassignmentdates', 'local_kreck');
+                }
                 $mi->assignsubmission_onlinetext_enabled = 1;
                 $mi->assignsubmission_file_enabled = 0;
                 $mi->assignsubmission_file_maxfiles = 1;
                 $mi->assignsubmission_file_maxsizebytes = 0;
                 $mi->assignfeedback_comments_enabled = 1;
-                $mi->duedate = 0;
-                $mi->allowsubmissionsfromdate = 0;
-                $mi->cutoffdate = 0;
+                $mi->duedate = $duedate;
+                $mi->allowsubmissionsfromdate = $opendate;
+                $mi->cutoffdate = $cutoffdate;
                 $mi->gradingduedate = 0;
                 $mi->submissiondrafts = 0;
                 $mi->requiresubmissionstatement = 0;
@@ -172,7 +247,10 @@ class module_factory {
                 $mi->markingallocation = 0;
                 $mi->attemptreopenmethod = 'none';
                 $mi->maxattempts = -1;
-                $mi->grade = 100;
+                $mi->grade = (float) ($spec['grade'] ?? 100);
+                if ($mi->grade <= 0) {
+                    throw new \moodle_exception('onb_invalidassignmentgrade', 'local_kreck');
+                }
                 $mi->gradepass = 0;
                 break;
 

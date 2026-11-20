@@ -23,6 +23,7 @@
  */
 
 require(__DIR__ . '/../../config.php');
+\local_kreck\diagnostics::register(__FILE__);
 require_once("{$CFG->libdir}/adminlib.php");
 
 use local_kreck\onboarding\engine;
@@ -152,7 +153,11 @@ if ($data = $form->get_data()) {
                 }
             }
         } catch (\Throwable $ex) {
-            $resulthtml = $OUTPUT->notification($ex->getMessage(), notification::NOTIFY_ERROR);
+            $reference = \local_kreck\diagnostics::report_caught($ex, 'onboarding action');
+            $resulthtml = $OUTPUT->notification(
+                $ex->getMessage() . ' (KRECK diagnostic reference: ' . $reference . ')',
+                notification::NOTIFY_ERROR
+            );
         }
     }
 }

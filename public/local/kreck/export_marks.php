@@ -17,8 +17,8 @@
 /**
  * KRECK LMS -> SMS marks export.
  *
- * Reads the Moodle gradebook for a provisioned batch and emits a marks file
- * keyed by (studentid, course shortname, item) so the KRECK SMS (Gibbon) side
+ * Reads the LMS gradebook for a provisioned batch and emits a marks file
+ * keyed by (studentid, course shortname, item) so the KRECK SMS side
  * can keep each learner's results on their lifelong school record.
  *
  * @package   local_kreck
@@ -27,6 +27,7 @@
  */
 
 require(__DIR__ . '/../../config.php');
+\local_kreck\diagnostics::register(__FILE__);
 require_once("{$CFG->libdir}/adminlib.php");
 require_once("{$CFG->libdir}/gradelib.php");
 require_once("{$CFG->dirroot}/user/lib.php");
@@ -68,7 +69,7 @@ function local_kreck_build_marks_rows(array $record): array {
         }
         $userids = array_map(static fn($u) => (int) $u->id, $enrolled);
 
-        // Map each Moodle userid to its KRECK studentid.
+        // Map each LMS userid to its KRECK studentid.
         [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $studentmap = $DB->get_records_select_menu('local_kreck_student',
             "userid $insql", $params, '', 'userid, studentid');
@@ -127,6 +128,7 @@ function local_kreck_build_marks_rows(array $record): array {
                 }
             }
         } catch (\Throwable $e) {
+            \local_kreck\diagnostics::report_caught($e, 'export marks for course ' . $courseid);
             continue;
         }
     }

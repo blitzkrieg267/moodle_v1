@@ -35,7 +35,7 @@ function xmldb_local_kreck_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2026111107) {
-        // Cross-system deep-link store (Gibbon <-> Moodle).
+        // Cross-system deep-link store (SMS <-> LMS).
         $table = new xmldb_table('local_kreck_link');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('entitytype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
@@ -84,6 +84,96 @@ function xmldb_local_kreck_upgrade($oldversion) {
         set_config('local_kreck/changelogversion', 2026111304);
 
         upgrade_plugin_savepoint(true, 2026111304, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111305) {
+        // Animated, directionally navigable course wall with a six-card window.
+        set_config('local_kreck/changelogversion', 2026111305);
+
+        upgrade_plugin_savepoint(true, 2026111305, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111306) {
+        // Full-width landing page and theme dropdown contrast improvements.
+        set_config('local_kreck/changelogversion', 2026111306);
+
+        upgrade_plugin_savepoint(true, 2026111306, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111307) {
+        // Personalized course wall and LMS calendar dashboard for learners.
+        set_config('local_kreck/changelogversion', 2026111307);
+
+        upgrade_plugin_savepoint(true, 2026111307, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111308) {
+        $table = new xmldb_table('local_kreck_sync_receipt');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('requestid', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('digest', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('response', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('requestid', XMLDB_INDEX_UNIQUE, ['requestid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $table = new xmldb_table('local_kreck_sync_event');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('eventid', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('eventtype', XMLDB_TYPE_CHAR, '80', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('entitytype', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('entityid', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('action', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('payload', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('attempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('nextrun', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('lastresponse', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('eventid', XMLDB_INDEX_UNIQUE, ['eventid']);
+        $table->add_index('delivery', XMLDB_INDEX_NOTUNIQUE, ['status', 'nextrun']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        set_config('local_kreck/changelogversion', 2026111308);
+        upgrade_plugin_savepoint(true, 2026111308, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111309) {
+        set_config('local_kreck/changelogversion', 2026111309);
+        upgrade_plugin_savepoint(true, 2026111309, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111320) {
+        set_config('local_kreck/changelogversion', 2026111320);
+
+        upgrade_plugin_savepoint(true, 2026111320, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111403) {
+        set_config('local_kreck/changelogversion', 2026111403);
+        set_config('gibbonheartbeatstatus', 'not_checked', 'local_kreck');
+
+        external_update_descriptions('local_kreck');
+
+        upgrade_plugin_savepoint(true, 2026111403, 'local', 'kreck');
+    }
+
+    if ($oldversion < 2026111901) {
+        // "Secure the app by virtue of installing KRECK": tighten the host LMS's
+        // own security posture (OWASP A05/A07). Only ever strengthens settings;
+        // prior values are recorded to local_kreck/hardening_prior for review or
+        // revert. Idempotent, so it is also safe to re-run on future upgrades.
+        \local_kreck\hardening::apply();
+
+        set_config('local_kreck/changelogversion', 2026111901);
+        upgrade_plugin_savepoint(true, 2026111901, 'local', 'kreck');
     }
 
     return true;

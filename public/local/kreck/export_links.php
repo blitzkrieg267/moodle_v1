@@ -17,10 +17,10 @@
 /**
  * KRECK LMS -> SMS link export.
  *
- * Emits a "links.moodle" JSON file describing the Moodle courses (and the
+ * Emits a "links.moodle" JSON file describing the LMS courses (and the
  * activities inside them) that this plugin provisioned, so the KRECK SMS
- * (Gibbon) side can deep-link back into the LMS ("Open in KRECK LMS").
- * The pipeline always starts at Gibbon; this is the return leg that lets the
+ * side can deep-link back into the LMS ("Open in KRECK LMS").
+ * The pipeline always starts at SMS; this is the return leg that lets the
  * SMS surface the LMS assets it created.
  *
  * @package   local_kreck
@@ -29,6 +29,7 @@
  */
 
 require(__DIR__ . '/../../config.php');
+\local_kreck\diagnostics::register(__FILE__);
 require_once("{$CFG->libdir}/adminlib.php");
 
 use local_kreck\onboarding\engine;

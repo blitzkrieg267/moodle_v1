@@ -25,9 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Send anonymous visitors from the site front page to the public KRECK landing
- * page. Runs early (before the front page's force-login check), so it works
- * even when the site forces login — logged-in users are never redirected.
+ * Send visitors from the site front page to the KRECK landing (welcome) page, so
+ * the navbar logo and the "Home" nav item — which both point at the site home
+ * ('/') — open the KRECK welcome page. Applies to anonymous AND logged-in users.
+ *
+ * Runs early (before the front page's force-login check), so it works even when
+ * the site forces login. Anyone can still reach Moodle's own front page with
+ * '/?redirect=0'. Gated by the 'landingenabled' setting; disabling it restores
+ * the stock front page for everyone.
  *
  * @return void
  */
@@ -41,10 +46,6 @@ function local_kreck_after_config(): void {
         return;
     }
     if (!get_config('local_kreck', 'landingenabled')) {
-        return;
-    }
-    // Only anonymous visitors; logged-in users keep their normal front page.
-    if (isloggedin() && !isguestuser()) {
         return;
     }
 
@@ -63,6 +64,10 @@ function local_kreck_after_config(): void {
     }
     // Never get in the way of an upgrade.
     if (moodle_needs_upgrading()) {
+        return;
+    }
+    // Standard escape hatch: '/?redirect=0' reaches Moodle's own front page.
+    if (optional_param('redirect', 1, PARAM_BOOL) == 0) {
         return;
     }
 
@@ -155,32 +160,70 @@ function local_kreck_mark_changelog_seen(int $version): void {
 }
 
 /**
+ * Get visible course IDs for the institution-wide calendar, including site events.
+ *
+ * @return int[]
+ */
+function local_kreck_get_school_calendar_course_ids(): array {
+    global $DB;
+
+    $courseids = $DB->get_fieldset_select(
+        'course',
+        'id',
+        'id <> :siteid AND visible = :visible',
+        ['siteid' => SITEID, 'visible' => 1]
+    );
+    $courseids[] = SITEID;
+
+    return array_values(array_unique(array_map('intval', $courseids)));
+}
+
+/**
  * Get every published course for the public landing page, with live stats.
  *
  * Returns courses in visible categories (excluding the site course), ordered
  * by sort order and name. Each course is annotated with its category, view URL,
- * formatted fullname and summary, search text, and stats from Moodle core tables:
+ * formatted fullname and summary, search text, and stats from LMS core tables:
  *   activities  - count of visible course modules
  *   lessons     - count of lesson modules
  *   discussions - count of forums
  *
+ * @param array|null $courseids Optional course IDs to limit the results to.
  * @return array of stdClass
  * @package   local_kreck
  * @copyright 2026 KRECK MicroLearn
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function local_kreck_get_landing_courses(): array {
+function local_kreck_get_landing_courses(?array $courseids = null): array {
     global $DB;
+
+    $coursefilter = '';
+    $coursefilterparams = [];
+    if ($courseids !== null) {
+        $courseids = array_values(array_unique(array_filter(
+            array_map('intval', $courseids),
+            static fn($courseid) => $courseid > 0
+        )));
+        if (empty($courseids)) {
+            return [];
+        }
+        [$courseidsql, $coursefilterparams] = $DB->get_in_or_equal(
+            $courseids,
+            SQL_PARAMS_NAMED,
+            'landingcourseid'
+        );
+        $coursefilter = " AND c.id {$courseidsql}";
+    }
 
     // Never let a stats query break the landing page — return empty on any DB error.
     try {
-        $params = ['site' => SITEID];
+        $params = ['site' => SITEID] + $coursefilterparams;
         $courses = $DB->get_records_sql(
             "SELECT c.id, c.fullname, c.shortname, c.summary, c.summaryformat,
                     c.category, cc.name AS categoryname
                FROM {course} c
                JOIN {course_categories} cc ON cc.id = c.category
-              WHERE c.visible = 1 AND c.id <> :site AND cc.visible = 1
+              WHERE c.visible = 1 AND c.id <> :site AND cc.visible = 1 {$coursefilter}
            ORDER BY c.sortorder ASC, c.fullname ASC",
             $params
         );
@@ -200,6 +243,7 @@ function local_kreck_get_landing_courses(): array {
                       JOIN {course_categories} cc ON cc.id = c.category
                  LEFT JOIN {course_sections} cs ON cs.id = cm.section
                      WHERE c.visible = 1 AND c.id <> :site AND cc.visible = 1
+                        {$coursefilter}
                        AND cm.visible = 1 AND cm.deletioninprogress = 0
                        AND (cs.visible = 1 OR cs.visible IS NULL)
                      GROUP BY cm.course";

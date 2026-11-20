@@ -74,6 +74,24 @@ $functions = [
         'capabilities' => 'local/kreck:manage',
         'services'    => ['local_kreck_service'],
     ],
+    'local_kreck_sync_manifest' => [
+        'classname'   => 'local_kreck\\external\\sync_manifest',
+        'methodname'  => 'execute',
+        'description' => 'Preflight or provision a versioned SMS institution manifest idempotently.',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
+    'local_kreck_ping' => [
+        'classname'   => 'local_kreck\\external\\ping',
+        'methodname'  => 'execute',
+        'description' => 'Check authenticated connectivity from SMS to LMS.',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
 ];
 
 $services = [
@@ -85,6 +103,8 @@ $services = [
             'local_kreck_ingest_fees',
             'local_kreck_ingest_streak',
             'local_kreck_ingest_topicstat',
+            'local_kreck_sync_manifest',
+            'local_kreck_ping',
         ],
         'restrictedusers' => 1,
         'enabled'         => 0,

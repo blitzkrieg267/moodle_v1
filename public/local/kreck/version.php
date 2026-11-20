@@ -17,7 +17,7 @@
 /**
  * KRECK MicroLearn data backbone - version information.
  *
- * local_kreck holds the KRECK SMS (Layer 1) data that core Moodle does not:
+ * local_kreck holds the KRECK SMS (Layer 1) data that core LMS does not:
  * the lifelong student record, attendance, fee accounts, learning streaks and
  * topic-struggle analytics, plus the web services that let the school system
  * and the mobile app read and write that one shared record.
@@ -29,8 +29,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026111304;        // YYYYMMDDXX.
-$plugin->requires  = 2025041400;        // Moodle 5.0 and up.
+$plugin->version   = 2026112000;        // YYYYMMDDXX.
+$plugin->requires  = 2025041400;        // LMS 5.0 and up.
 $plugin->component = 'local_kreck';
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.1.4';
+$plugin->release   = '0.3.0';

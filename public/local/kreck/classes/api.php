@@ -46,7 +46,7 @@ class api {
      * a well-formed summary of zeros rather than an error, so the UI always
      * renders.
      *
-     * @param int $userid The learner's Moodle user id.
+     * @param int $userid The learner's LMS user id.
      * @param int $attendancedays Window (in days) for the attendance rate.
      * @return array
      */

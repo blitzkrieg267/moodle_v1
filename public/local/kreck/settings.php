@@ -44,13 +44,27 @@ if ($hassiteconfig) {
         4
     ));
 
-    // Base URL of the KRECK SMS (Gibbon), used to build "View in KRECK SMS" deep-links.
+    // Base URL of the KRECK SMS, used to build "View in KRECK SMS" deep-links.
     $settings->add(new admin_setting_configtext(
         'local_kreck/gibbonbaseurl',
         get_string('gibbonbaseurl', 'local_kreck'),
         get_string('gibbonbaseurl_desc', 'local_kreck'),
         '',
         PARAM_URL
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_kreck/gibbonwebhookurl',
+        get_string('gibbonwebhookurl', 'local_kreck'),
+        get_string('gibbonwebhookurl_desc', 'local_kreck'),
+        '',
+        PARAM_URL
+    ));
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_kreck/gibbonwebhooksecret',
+        get_string('gibbonwebhooksecret', 'local_kreck'),
+        get_string('gibbonwebhooksecret_desc', 'local_kreck'),
+        ''
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -155,6 +169,14 @@ $ADMIN->add('localplugins', new admin_externalpage(
     'local/kreck:manage'
 ));
 
+// SMS <-> LMS connectivity checks.
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_connection',
+    get_string('connectiontitle', 'local_kreck'),
+    new moodle_url('/local/kreck/connection.php'),
+    'local/kreck:manage'
+));
+
 // Smart importer (map any spreadsheet).
 $ADMIN->add('localplugins', new admin_externalpage(
     'local_kreck_import',
@@ -163,7 +185,7 @@ $ADMIN->add('localplugins', new admin_externalpage(
     'local/kreck:manage'
 ));
 
-// LMS -> SMS link export (courses + activities back to Gibbon).
+// LMS -> SMS link export (courses + activities back to SMS).
 $ADMIN->add('localplugins', new admin_externalpage(
     'local_kreck_exportlinks',
     get_string('exportlinks', 'local_kreck'),
@@ -171,10 +193,18 @@ $ADMIN->add('localplugins', new admin_externalpage(
     'local/kreck:manage'
 ));
 
-// LMS -> SMS marks export (gradebook back to Gibbon record-keeping).
+// LMS -> SMS marks export (gradebook back to SMS record-keeping).
 $ADMIN->add('localplugins', new admin_externalpage(
     'local_kreck_exportmarks',
     get_string('exportmarks', 'local_kreck'),
     new moodle_url('/local/kreck/export_marks.php'),
+    'local/kreck:manage'
+));
+
+// SMS -> LMS link import (reverse of export_links): pull SMS deep-links in.
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_importlinks',
+    get_string('importlinks', 'local_kreck'),
+    new moodle_url('/local/kreck/import_links.php'),
     'local/kreck:manage'
 ));

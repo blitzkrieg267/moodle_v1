@@ -17,7 +17,7 @@
 /**
  * The KRECK onboarding / provisioning engine.
  *
- * Orchestrates native Moodle core APIs (core_course_category::create,
+ * Orchestrates native LMS core APIs (core_course_category::create,
  * create_course, add_moduleinfo, user_create_user, enrol) to stand up a whole
  * institution from a manifest, with a dry-run preflight and a batch rollback.
  * It stores the batch manifest in plugin config (no custom tables).
@@ -66,6 +66,193 @@ class engine {
         return $this->batchid;
     }
 
+    /**
+     * Use the source site's timezone, or LMS's configured server timezone
+     * for older manifests that do not carry one.
+     *
+     * @param manifest $manifest
+     * @return string
+     */
+    protected function manifest_timezone(manifest $manifest): string {
+        $timezone = trim((string) ($manifest->meta()['timezone'] ?? ''));
+        if ($timezone === '') {
+            $timezone = (string) \core_date::get_server_timezone();
+        }
+        new \DateTimeZone($timezone);
+        return $timezone;
+    }
+
+    /**
+     * Validate schedule and assignment date fields before any writes occur.
+     *
+     * @param array $course
+     * @param string $timezone
+     * @param array $errors
+     */
+    protected function validate_course_dates(array $course, string $timezone, array &$errors): void {
+        $shortname = (string) ($course['shortname'] ?? '(unnamed course)');
+        try {
+            $start = !empty($course['startdate'])
+                ? module_factory::timestamp((string) $course['startdate'], '00:00:00', $timezone, 'course start date')
+                : null;
+            $end = !empty($course['enddate'])
+                ? module_factory::timestamp((string) $course['enddate'], '23:59:59', $timezone, 'course end date')
+                : null;
+            if ($start !== null && $end !== null && $end < $start) {
+                $errors[] = "Course {$shortname} ends before it starts.";
+            }
+        } catch (\moodle_exception $e) {
+            $errors[] = "Course {$shortname}: " . $e->getMessage();
+        }
+
+        foreach ($course['schedule'] ?? [] as $index => $session) {
+            try {
+                $start = module_factory::timestamp(
+                    (string) ($session['date'] ?? ''),
+                    (string) ($session['start_time'] ?? ''),
+                    $timezone,
+                    'timetable start'
+                );
+                $end = module_factory::timestamp(
+                    (string) ($session['date'] ?? ''),
+                    (string) ($session['end_time'] ?? ''),
+                    $timezone,
+                    'timetable end'
+                );
+                if ($end <= $start) {
+                    $errors[] = "Course {$shortname} timetable row " . ($index + 1) . " ends before or at its start.";
+                }
+            } catch (\moodle_exception $e) {
+                $errors[] = "Course {$shortname} timetable row " . ($index + 1) . ': ' . $e->getMessage();
+            }
+        }
+
+        foreach ($course['assignments'] ?? [] as $index => $assignment) {
+            $label = (string) ($assignment['name'] ?? ('assignment ' . ($index + 1)));
+            if ((int) ($assignment['section_num'] ?? 0) < 0) {
+                $errors[] = "Course {$shortname}, {$label}: section number cannot be negative.";
+            }
+            if ((float) ($assignment['grade'] ?? 0) <= 0) {
+                $errors[] = "Course {$shortname}, {$label}: maximum grade must be positive.";
+            }
+            try {
+                $open = $this->validate_optional_pair($assignment, 'open_date', 'open_time', $timezone, 'opening date/time');
+                $due = $this->validate_optional_pair($assignment, 'due_date', 'due_time', $timezone, 'due date/time', true);
+                $cutoff = $this->validate_optional_pair($assignment, 'cutoff_date', 'cutoff_time', $timezone, 'cutoff date/time');
+                if ($open !== null && $due !== null && $open >= $due) {
+                    $errors[] = "Course {$shortname}, {$label}: opening date/time must be before the due date/time.";
+                }
+                if ($cutoff !== null && $due !== null && $cutoff < $due) {
+                    $errors[] = "Course {$shortname}, {$label}: cutoff date/time cannot be before the due date/time.";
+                }
+            } catch (\moodle_exception $e) {
+                $errors[] = "Course {$shortname}, {$label}: " . $e->getMessage();
+            }
+        }
+    }
+
+    /**
+     * Validate and convert an optional date/time pair.
+     *
+     * @param array $values
+     * @param string $datekey
+     * @param string $timekey
+     * @param string $timezone
+     * @param string $label
+     * @param bool $required
+     * @return int|null
+     */
+    protected function validate_optional_pair(
+        array $values,
+        string $datekey,
+        string $timekey,
+        string $timezone,
+        string $label,
+        bool $required = false
+    ): ?int {
+        $date = trim((string) ($values[$datekey] ?? ''));
+        $time = trim((string) ($values[$timekey] ?? ''));
+        if ($date === '' && $time === '' && !$required) {
+            return null;
+        }
+        if ($date === '' || $time === '') {
+            throw new \moodle_exception('onb_invalidschedule', 'local_kreck', '', $label);
+        }
+        return module_factory::timestamp($date, $time, $timezone, $label);
+    }
+
+    /**
+     * Create native LMS course calendar events for dated SMS timetable rows.
+     *
+     * @param \stdClass $course
+     * @param array $schedule
+     * @param string $timezone
+     * @return int[] IDs of calendar events created.
+     */
+    protected function create_schedule_events(\stdClass $course, array $schedule, string $timezone): array {
+        global $CFG, $DB;
+        if (empty($schedule)) {
+            return [];
+        }
+
+        require_once($CFG->dirroot . '/calendar/lib.php');
+        $created = [];
+        $existingevents = $DB->get_records('event', [
+            'courseid' => $course->id,
+            'eventtype' => 'course',
+        ], '', 'id,name,timestart,timeduration,location');
+        foreach ($schedule as $session) {
+            $date = (string) ($session['date'] ?? '');
+            $start = module_factory::timestamp($date, (string) ($session['start_time'] ?? ''), $timezone, 'timetable start');
+            $end = module_factory::timestamp($date, (string) ($session['end_time'] ?? ''), $timezone, 'timetable end');
+            if ($end <= $start) {
+                throw new \moodle_exception('onb_invalidschedule', 'local_kreck', '', 'timetable end');
+            }
+
+            $period = trim((string) ($session['period'] ?? 'Class'));
+            $room = trim((string) ($session['room'] ?? ''));
+            $event = new \stdClass();
+            $event->name = format_string($course->fullname . ' - ' . $period);
+            $event->description = '<p>' . s((string) ($session['day'] ?? '')) . '</p>';
+            $event->format = FORMAT_HTML;
+            $event->course = (int) $course->id;
+            $event->courseid = (int) $course->id;
+            $event->groupid = 0;
+            $event->userid = 0;
+            $event->modulename = '';
+            $event->instance = 0;
+            $event->eventtype = 'course';
+            $event->type = CALENDAR_EVENT_TYPE_STANDARD;
+            $event->timestart = $start;
+            $event->timeduration = $end - $start;
+            $event->visible = 1;
+            $event->location = $room;
+            $duplicate = false;
+            foreach ($existingevents as $existingevent) {
+                if ($existingevent->name === $event->name
+                        && (int) $existingevent->timestart === $start
+                        && (int) $existingevent->timeduration === (int) $event->timeduration
+                        && (string) ($existingevent->location ?? '') === $room) {
+                    $duplicate = true;
+                    break;
+                }
+            }
+            if ($duplicate) {
+                continue;
+            }
+            $createdevent = \calendar_event::create($event, false);
+            $created[] = (int) $createdevent->id;
+            $existingevents[] = (object) [
+                'name' => $event->name,
+                'timestart' => $start,
+                'timeduration' => (int) $event->timeduration,
+                'location' => $room,
+            ];
+        }
+
+        return $created;
+    }
+
     // ------------------------------------------------------------------ Dry run.
 
     /**
@@ -74,14 +261,22 @@ class engine {
      * @param manifest $manifest
      * @return array ['ok'=>bool, 'plan'=>array, 'errors'=>string[], 'warnings'=>string[]]
      */
-    public function validate(manifest $manifest): array {
+    public function validate(manifest $manifest, bool $mergeexistingcourses = false): array {
         global $DB;
 
         $errors = [];
         $warnings = [];
-        $plan = ['categories_create' => [], 'categories_exist' => [], 'courses' => [], 'users_create' => [],
-            'users_exist' => [], 'modules_total' => 0, 'cohorts_create' => [], 'cohorts_exist' => [],
-            'students_create' => 0, 'enrolments' => 0];
+        $timezone = '';
+        try {
+            $timezone = $this->manifest_timezone($manifest);
+        } catch (\Exception $e) {
+            $errors[] = get_string('onb_invalidtimezone', 'local_kreck', (string) ($manifest->meta()['timezone'] ?? ''));
+        }
+        $plan = ['categories_create' => [], 'categories_exist' => [], 'courses' => [], 'courses_existing' => [],
+            'users_create' => [], 'users_exist' => [], 'users_auto_create' => [], 'modules_total' => 0,
+            'modules_existing' => 0, 'calendar_events' => 0, 'calendar_events_existing' => 0,
+            'cohorts_create' => [], 'cohorts_exist' => [], 'students_create' => 0,
+            'students_exist' => [], 'enrolments' => 0];
 
         // Categories.
         foreach ($manifest->category_paths() as $path) {
@@ -92,15 +287,33 @@ class engine {
             }
         }
 
-        // Users.
+        // Declared users (used to distinguish explicit teachers from teacher stubs).
         $declaredusers = [];
+        $declaredusernames = [];
+        foreach (array_merge($manifest->users(), $manifest->students()) as $declareduser) {
+            $username = strtolower(trim((string) ($declareduser['username'] ?? ($declareduser['email'] ?? ''))));
+            $email = strtolower(trim((string) ($declareduser['email'] ?? '')));
+            if ($username !== '') {
+                $declaredusernames[$username] = true;
+            }
+            if ($email !== '') {
+                $declaredusers[$email] = true;
+            }
+        }
+
+        // Staff users.
+        $seenusernames = [];
         foreach ($manifest->users() as $u) {
-            $username = $u['username'] ?? ($u['email'] ?? '');
-            $declaredusers[strtolower($u['email'] ?? '')] = true;
+            $username = trim((string) ($u['username'] ?? ($u['email'] ?? '')));
             if ($username === '') {
                 $errors[] = get_string('onb_err_nouser', 'local_kreck');
                 continue;
             }
+            if (isset($seenusernames[strtolower($username)])) {
+                $errors[] = get_string('onb_err_duplicateuser', 'local_kreck', $username);
+                continue;
+            }
+            $seenusernames[strtolower($username)] = true;
             if ($DB->record_exists_select('user', 'username = :u AND deleted = 0', ['u' => $username])) {
                 $plan['users_exist'][] = $username;
             } else {
@@ -115,8 +328,17 @@ class engine {
                 $errors[] = get_string('onb_err_coursefields', 'local_kreck');
                 continue;
             }
-            if ($DB->record_exists('course', ['shortname' => $shortname])) {
-                $errors[] = get_string('onb_err_shortname', 'local_kreck', $shortname);
+            $existingcourse = $DB->get_record('course', ['shortname' => $shortname], 'id,shortname', IGNORE_MISSING);
+            if ($existingcourse) {
+                $plan['courses_existing'][] = $shortname;
+                if (!$mergeexistingcourses) {
+                    $errors[] = get_string('onb_err_shortname', 'local_kreck', $shortname);
+                }
+            } else {
+                $plan['courses'][] = $shortname;
+            }
+            if ($timezone !== '') {
+                $this->validate_course_dates($c, $timezone, $errors);
             }
             $modcount = 0;
             foreach ($manifest->effective_sections($c) as $section) {
@@ -129,15 +351,49 @@ class engine {
                     $modcount++;
                 }
             }
-            $plan['modules_total'] += $modcount;
+            $modcount += count($c['assignments'] ?? []);
+            if ($existingcourse && $mergeexistingcourses) {
+                $existingmodules = $this->course_module_index(get_course((int) $existingcourse->id));
+                $missingcount = 0;
+                foreach ($manifest->effective_sections($c) as $section) {
+                    $sectionnum = (int) ($section['section_num'] ?? 0);
+                    foreach ($section['modules'] ?? [] as $module) {
+                        $type = module_factory::normalise_type($module['type'] ?? '');
+                        if (!in_array($type, module_factory::SUPPORTED, true)) {
+                            continue;
+                        }
+                        $key = $this->module_match_key($sectionnum, $type, (string) ($module['name'] ?? ucfirst($type)));
+                        if (!isset($existingmodules[$key])) {
+                            $missingcount++;
+                            $existingmodules[$key] = true;
+                        }
+                    }
+                }
+                foreach ($c['assignments'] ?? [] as $assignment) {
+                    $sectionnum = (int) ($assignment['section_num'] ?? 0);
+                    $key = $this->module_match_key($sectionnum, 'assign', (string) ($assignment['name'] ?? 'Assignment'));
+                    if (!isset($existingmodules[$key])) {
+                        $missingcount++;
+                        $existingmodules[$key] = true;
+                    }
+                }
+                $plan['modules_existing'] += $missingcount;
+                $plan['calendar_events_existing'] += count($c['schedule'] ?? []);
+            } else {
+                $plan['modules_total'] += $modcount;
+                $plan['calendar_events'] += count($c['schedule'] ?? []);
+            }
             // Teachers not declared and not present will be auto-created.
             foreach ($c['teachers'] ?? [] as $temail) {
                 $exists = $DB->record_exists_select('user', 'email = :e AND deleted = 0', ['e' => $temail]);
                 if (!$exists && empty($declaredusers[strtolower($temail)])) {
                     $warnings[] = get_string('onb_warn_teacher', 'local_kreck', $temail);
+                    $usernameexists = $DB->record_exists_select('user', 'username = :u AND deleted = 0', ['u' => $temail]);
+                    if (!$usernameexists && empty($declaredusernames[strtolower($temail)])) {
+                        $plan['users_auto_create'][strtolower($temail)] = true;
+                    }
                 }
             }
-            $plan['courses'][] = ['shortname' => $shortname, 'modules' => $modcount];
         }
 
         // Cohorts.
@@ -150,8 +406,26 @@ class engine {
             }
         }
 
-        // Students (explicit + generated).
-        $plan['students_create'] = count($manifest->students());
+        // Explicit students (the plan separates new accounts from existing ones).
+        foreach ($manifest->students() as $student) {
+            $username = trim((string) ($student['username'] ?? ($student['email'] ?? '')));
+            if ($username === '') {
+                $errors[] = get_string('onb_err_nouser', 'local_kreck');
+                continue;
+            }
+            if (isset($seenusernames[strtolower($username)])) {
+                $errors[] = get_string('onb_err_duplicateuser', 'local_kreck', $username);
+                continue;
+            }
+            $seenusernames[strtolower($username)] = true;
+            if ($DB->record_exists_select('user', 'username = :u AND deleted = 0', ['u' => $username])) {
+                $plan['students_exist'][] = $username;
+            } else {
+                $plan['students_create']++;
+            }
+        }
+
+        // Bulk-generated student users.
         foreach ($manifest->generators() as $g) {
             $plan['students_create'] += max(0, (int) ($g['count'] ?? 0));
         }
@@ -173,6 +447,10 @@ class engine {
             }
         }
 
+        if ($mergeexistingcourses && !empty($plan['courses_existing'])) {
+            $warnings[] = 'Matching courses are reused by exact shortname. Existing course settings and matching activities are preserved; only missing named activities and enrolments are added.';
+        }
+
         return ['ok' => empty($errors), 'plan' => $plan, 'errors' => $errors, 'warnings' => $warnings];
     }
 
@@ -184,7 +462,7 @@ class engine {
      * @param manifest $manifest
      * @return array ['ok'=>bool, 'batchid'=>string, 'log'=>string[], 'record'=>array, 'error'=>?string]
      */
-    public function provision(manifest $manifest): array {
+    public function provision(manifest $manifest, bool $mergeexistingcourses = false): array {
         global $CFG, $DB, $USER;
         require_once($CFG->dirroot . '/course/lib.php');
 
@@ -203,9 +481,16 @@ class engine {
 
         $log = [];
         $record = ['batchid' => $this->batchid, 'timecreated' => time(),
-            'categories' => [], 'users' => [], 'cohorts' => [], 'courses' => [], 'cms' => [], 'enrolments' => []];
+            'categories' => [], 'users' => [], 'cohorts' => [], 'courses' => [], 'existingcourses' => [],
+            'cms' => [], 'coursemap' => [], 'enrolments' => [], 'calendar_events' => 0,
+            'mergeCms' => [], 'mergeEvents' => []];
+        $suppressoutbound = ($manifest->meta()['source'] ?? '') === 'Kreck Bridge';
+        if ($suppressoutbound) {
+            \local_kreck\sync\observer::suspend();
+        }
 
         try {
+            $timezone = $this->manifest_timezone($manifest);
             // 1. Categories.
             $catmap = [];
             foreach ($manifest->category_paths() as $path) {
@@ -246,8 +531,8 @@ class engine {
                     $record['users'][] = $uid;
                 }
                 // Persist the cross-system identity link (external SIS student ID
-                // -> Moodle userid). This is the join key that lets results/grades
-                // round-trip back to the right person in the SIS (e.g. Gibbon).
+                // -> LMS userid). This is the join key that lets results/grades
+                // round-trip back to the right person in the SIS (e.g. SMS).
                 if (!empty($s['studentid'])) {
                     if ($this->ensure_student_record($uid, (string) $s['studentid'], $s)) {
                         $record['students'][] = $uid;
@@ -272,7 +557,18 @@ class engine {
 
             // 3. Courses.
             foreach ($manifest->courses() as $c) {
+                $shortname = trim((string) $c['shortname']);
+                $existingcourse = $DB->get_record('course', ['shortname' => $shortname], '*', IGNORE_MISSING);
+                if ($existingcourse && !$mergeexistingcourses) {
+                    throw new \moodle_exception('onb_err_shortname', 'local_kreck', '', $shortname);
+                }
                 $catid = $catmap[$c['category_path'] ?? ''] ?? $this->default_category_id();
+                $startdate = !empty($c['startdate'])
+                    ? module_factory::timestamp((string) $c['startdate'], '00:00:00', $timezone, 'course start date')
+                    : time();
+                $enddate = !empty($c['enddate'])
+                    ? module_factory::timestamp((string) $c['enddate'], '23:59:59', $timezone, 'course end date')
+                    : 0;
 
                 $coursedata = (object) [
                     'fullname' => $c['fullname'],
@@ -280,26 +576,47 @@ class engine {
                     'category' => $catid,
                     'format' => $c['format'] ?? 'weeks',
                     'numsections' => (int) ($c['numsections'] ?? 8),
-                    'startdate' => !empty($c['startdate']) ? strtotime($c['startdate']) : time(),
+                    'startdate' => $startdate,
+                    'enddate' => $enddate,
                     'summary' => $c['summary'] ?? '',
                     'summaryformat' => FORMAT_HTML,
                     'visible' => 1,
                 ];
-                $course = create_course($coursedata);
-                $record['courses'][] = (int) $course->id;
-                // shortname -> courseid map, so the Moodle->Gibbon links/marks export
+                if ($existingcourse) {
+                    $course = get_course((int) $existingcourse->id);
+                    $record['existingcourses'][] = (int) $course->id;
+                    $log[] = 'Reusing existing course ' . $course->shortname . '; existing course details and matching content are preserved.';
+                } else {
+                    $course = create_course($coursedata);
+                    $record['courses'][] = (int) $course->id;
+                }
+                // shortname -> courseid map, so the LMS->SMS links/marks export
                 // can reference the created courses. (Keeps the flat list above for rollback.)
                 $record['coursemap'][(string) $course->shortname] = (int) $course->id;
-                $log[] = get_string('onb_log_coursecreated', 'local_kreck', $course->shortname);
+                if (!$existingcourse) {
+                    $log[] = get_string('onb_log_coursecreated', 'local_kreck', $course->shortname);
+                }
+                $eventids = $this->create_schedule_events($course, $c['schedule'] ?? [], $timezone);
+                $record['calendar_events'] += count($eventids);
+                if ($existingcourse) {
+                    $record['mergeEvents'] = array_merge($record['mergeEvents'], $eventids);
+                }
+                if (!empty($eventids)) {
+                    $log[] = get_string('onb_log_calendareventscreated', 'local_kreck', count($eventids));
+                }
 
                 // Sections + modules.
                 $sections = $manifest->effective_sections($c);
                 $sectionnums = array_map(fn($s) => (int) ($s['section_num'] ?? 0), $sections);
+                foreach ($c['assignments'] ?? [] as $assignment) {
+                    $sectionnums[] = max(0, (int) ($assignment['section_num'] ?? 0));
+                }
                 course_create_sections_if_missing($course, $sectionnums);
 
+                $existingmodules = $existingcourse ? $this->course_module_index($course) : [];
                 foreach ($sections as $section) {
                     $num = (int) ($section['section_num'] ?? 0);
-                    if (!empty($section['title'])) {
+                    if (!$existingcourse && !empty($section['title'])) {
                         $this->name_section($course, $num, $section['title']);
                     }
                     foreach ($section['modules'] ?? [] as $m) {
@@ -307,9 +624,33 @@ class engine {
                         if (!in_array($type, module_factory::SUPPORTED, true)) {
                             continue;
                         }
+                        $key = $this->module_match_key($num, $type, (string) ($m['name'] ?? ucfirst($type)));
+                        if ($existingcourse && isset($existingmodules[$key])) {
+                            continue;
+                        }
                         $cmid = module_factory::create($course, $num, $m);
+                        if ($existingcourse) {
+                            $record['mergeCms'][] = $cmid;
+                        } else {
+                            $record['cms'][] = $cmid;
+                        }
+                        $existingmodules[$key] = true;
+                    }
+                }
+                foreach ($c['assignments'] ?? [] as $assignment) {
+                    $sectionnum = (int) ($assignment['section_num'] ?? 0);
+                    $assignment['timezone'] = $timezone;
+                    $key = $this->module_match_key($sectionnum, 'assign', (string) ($assignment['name'] ?? 'Assignment'));
+                    if ($existingcourse && isset($existingmodules[$key])) {
+                        continue;
+                    }
+                    $cmid = module_factory::create($course, $sectionnum, $assignment);
+                    if ($existingcourse) {
+                        $record['mergeCms'][] = $cmid;
+                    } else {
                         $record['cms'][] = $cmid;
                     }
+                    $existingmodules[$key] = true;
                 }
 
                 // Enrol teachers.
@@ -320,7 +661,7 @@ class engine {
                 // Bind cohorts to the course (cohort enrol as students).
                 foreach ($c['cohorts'] ?? [] as $cref) {
                     $cid = $this->resolve_cohort($cref, $cohortmap);
-                    if ($cid) {
+                    if ($cid && !$existingcourse) {
                         $this->bind_cohort_to_course($course, $cid, 'student');
                     }
                 }
@@ -329,7 +670,9 @@ class engine {
                 foreach ($c['students'] ?? [] as $login) {
                     $uid = $this->resolve_user_id($login);
                     if ($uid) {
-                        $this->enrol_in_course($course, $uid, 'student');
+                        if ($this->enrol_in_course($course, $uid, 'student')) {
+                            $record['enrolments'][] = ['courseid' => (int) $course->id, 'userid' => (int) $uid];
+                        }
                     }
                 }
 
@@ -357,14 +700,15 @@ class engine {
                     }
                 }
                 $roleshort = $this->normalise_role((string) ($e['role'] ?? 'student'));
-                $this->enrol_in_course($enrolcourse, $uid, $roleshort);
-                $record['enrolments'][] = ['courseid' => (int) $courseid, 'userid' => (int) $uid];
-                $log[] = get_string('onb_log_enrolled', 'local_kreck',
-                    (object) ['user' => $login, 'course' => $enrolcourse->shortname]);
+                if ($this->enrol_in_course($enrolcourse, $uid, $roleshort)) {
+                    $record['enrolments'][] = ['courseid' => (int) $courseid, 'userid' => (int) $uid];
+                    $log[] = get_string('onb_log_enrolled', 'local_kreck',
+                        (object) ['user' => $login, 'course' => $enrolcourse->shortname]);
+                }
             }
 
-            // 5. Cross-system deep-links from the KRECK SMS (relative Gibbon URLs),
-            //    so Moodle can render "View in KRECK SMS" links on course/user pages.
+            // 5. Cross-system deep-links from the KRECK SMS (relative SMS URLs),
+            //    so LMS can render "View in KRECK SMS" links on course/user pages.
             $linkcount = $this->store_links($manifest->links(), $record);
             if ($linkcount) {
                 $log[] = 'Stored ' . $linkcount . ' KRECK SMS back-link(s).';
@@ -379,12 +723,16 @@ class engine {
             $this->rollback_record($record);
             return ['ok' => false, 'batchid' => $this->batchid, 'log' => $log, 'record' => $record,
                 'error' => $e->getMessage()];
+        } finally {
+            if ($suppressoutbound) {
+                \local_kreck\sync\observer::resume();
+            }
         }
     }
 
     /**
      * Upsert the cross-system deep-links carried in the manifest's `links`
-     * section (relative Gibbon URLs). Idempotent on (entitytype, entitykey,
+     * section (relative SMS URLs). Idempotent on (entitytype, entitykey,
      * direction). Returns how many links were stored.
      *
      * @param array $links ['courses'=>[shortname=>['url','gibbonCourseClassID']], 'students'=>[studentid=>[...]]]
@@ -434,6 +782,64 @@ class engine {
         return $count;
     }
 
+    /**
+     * Standalone, idempotent import of SMS (KRECK SMS / SMS) deep-links into
+     * local_kreck_link, independent of a full manifest onboarding. Mirrors
+     * store_links() but reports per-key results for the reverse-import page.
+     * Idempotent on (entitytype, entitykey, direction='togibbon').
+     *
+     * @param array $links ['courses'=>[shortname=>['url'|'relurl','gibbonCourseClassID'|'extid']],
+     *                       'students'=>[studentid=>['url'|'relurl','gibbonPersonID'|'extid']]]
+     * @return array ['created'=>int,'updated'=>int,'skipped'=>int,'rows'=>array]
+     */
+    public function import_links(array $links): array {
+        global $DB, $USER;
+        $now = time();
+        $uid = isset($USER->id) ? (int) $USER->id : 0;
+        $items = [];
+        foreach (($links['courses'] ?? []) as $shortname => $info) {
+            $items[] = ['course', (string) $shortname,
+                (string) ($info['url'] ?? ($info['relurl'] ?? '')),
+                (string) ($info['gibbonCourseClassID'] ?? ($info['extid'] ?? ''))];
+        }
+        foreach (($links['students'] ?? []) as $sid => $info) {
+            $items[] = ['user', (string) $sid,
+                (string) ($info['url'] ?? ($info['relurl'] ?? '')),
+                (string) ($info['gibbonPersonID'] ?? ($info['extid'] ?? ''))];
+        }
+        $created = 0; $updated = 0; $skipped = 0; $rows = [];
+        foreach ($items as [$etype, $ekey, $url, $extid]) {
+            if ($url === '' || $ekey === '') {
+                $skipped++;
+                $rows[] = ['type' => $etype, 'key' => $ekey, 'result' => 'skipped', 'reason' => 'missing key or URL'];
+                continue;
+            }
+            $data = (object) [
+                'entitytype'   => $etype,
+                'entitykey'    => $ekey,
+                'direction'    => 'togibbon',
+                'relurl'       => $url,
+                'extid'        => $extid !== '' ? $extid : null,
+                'usermodified' => $uid,
+                'timemodified' => $now,
+            ];
+            $existing = $DB->get_record('local_kreck_link',
+                ['entitytype' => $etype, 'entitykey' => $ekey, 'direction' => 'togibbon']);
+            if ($existing) {
+                $data->id = $existing->id;
+                $DB->update_record('local_kreck_link', $data);
+                $updated++;
+                $rows[] = ['type' => $etype, 'key' => $ekey, 'result' => 'updated'];
+            } else {
+                $data->timecreated = $now;
+                $DB->insert_record('local_kreck_link', $data);
+                $created++;
+                $rows[] = ['type' => $etype, 'key' => $ekey, 'result' => 'created'];
+            }
+        }
+        return ['created' => $created, 'updated' => $updated, 'skipped' => $skipped, 'rows' => $rows];
+    }
+
     // ---------------------------------------------------------------- Rollback.
 
     /**
@@ -476,6 +882,23 @@ class engine {
                 if ($instance) {
                     $manual->unenrol_user($instance, $en['userid']);
                     $removed['enrolments']++;
+                }
+            }
+        }
+
+        if (!empty($record['mergeCms'])) {
+            foreach (array_reverse($record['mergeCms']) as $cmid) {
+                if ($DB->record_exists('course_modules', ['id' => $cmid])) {
+                    course_delete_module((int) $cmid);
+                }
+            }
+        }
+
+        if (!empty($record['mergeEvents'])) {
+            require_once($CFG->dirroot . '/calendar/lib.php');
+            foreach ($record['mergeEvents'] as $eventid) {
+                if ($DB->record_exists('event', ['id' => $eventid])) {
+                    \calendar_event::load((int) $eventid)->delete();
                 }
             }
         }
@@ -713,14 +1136,14 @@ class engine {
     }
 
     /**
-     * Upsert the KRECK student record that links a Moodle userid to the external
+     * Upsert the KRECK student record that links a LMS userid to the external
      * SIS student ID (the cross-system join key for the results round-trip).
      *
      * Uses the persistent model so audit fields and the unique userid key are
      * handled consistently. Best-effort: a failure never aborts provisioning.
      *
-     * @param int $userid Moodle user id.
-     * @param string $studentid External SIS student ID (e.g. Gibbon studentID).
+     * @param int $userid LMS user id.
+     * @param string $studentid External SIS student ID (e.g. SMS studentID).
      * @param array $s The manifest student row (optional classname/stream/etc).
      * @return bool True if a record was created or updated.
      */
@@ -789,7 +1212,9 @@ class engine {
             $user = $DB->get_record('user', ['id' => $uid]);
         }
 
-        $this->enrol_in_course($course, (int) $user->id, 'editingteacher');
+        if ($this->enrol_in_course($course, (int) $user->id, 'editingteacher')) {
+            $record['enrolments'][] = ['courseid' => (int) $course->id, 'userid' => (int) $user->id];
+        }
     }
 
     /**
@@ -798,9 +1223,13 @@ class engine {
      * @param \stdClass $course
      * @param int $userid
      * @param string $roleshort
+     * @return bool Whether a new enrolment was created.
      */
-    protected function enrol_in_course(\stdClass $course, int $userid, string $roleshort): void {
+    protected function enrol_in_course(\stdClass $course, int $userid, string $roleshort): bool {
         global $DB;
+        if (is_enrolled(\context_course::instance((int) $course->id), $userid)) {
+            return false;
+        }
         $plugin = enrol_get_plugin('manual');
         $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
         if (!$instance) {
@@ -812,10 +1241,39 @@ class engine {
         }
         $roleid = $DB->get_field('role', 'id', ['shortname' => $roleshort]);
         $plugin->enrol_user($instance, $userid, $roleid);
+        return true;
     }
 
     /**
-     * Map a human role label onto a Moodle role shortname.
+     * Stable within a course for matching manifest content during merge.
+     *
+     * @param int $sectionnum
+     * @param string $type
+     * @param string $name
+     * @return string
+     */
+    protected function module_match_key(int $sectionnum, string $type, string $name): string {
+        return $sectionnum . '|' . strtolower($type) . '|' . trim($name);
+    }
+
+    /**
+     * Index current activities by section, module type, and name.
+     *
+     * @param \stdClass $course
+     * @return bool[]
+     */
+    protected function course_module_index(\stdClass $course): array {
+        $index = [];
+        foreach (get_fast_modinfo($course)->get_cms() as $cm) {
+            if (!$cm->deletioninprogress) {
+                $index[$this->module_match_key($cm->sectionnum, $cm->modname, $cm->name)] = true;
+            }
+        }
+        return $index;
+    }
+
+    /**
+     * Map a human role label onto a LMS role shortname.
      *
      * @param string $label
      * @return string

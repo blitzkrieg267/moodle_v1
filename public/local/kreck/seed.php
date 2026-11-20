@@ -26,6 +26,7 @@
  */
 
 require(__DIR__ . '/../../config.php');
+\local_kreck\diagnostics::register(__FILE__);
 require_once("{$CFG->libdir}/adminlib.php");
 
 use local_kreck\persistent\student;

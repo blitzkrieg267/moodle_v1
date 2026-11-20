@@ -17,7 +17,7 @@
 /**
  * Reads a KRECK institution intake workbook (.xlsx) into an onboarding manifest.
  *
- * Uses Moodle's bundled PhpSpreadsheet. Each named sheet maps to one entity;
+ * Uses LMS's bundled PhpSpreadsheet. Each named sheet maps to one entity;
  * unknown sheets and columns are ignored, so the human form can carry extra
  * notes without breaking the import.
  *

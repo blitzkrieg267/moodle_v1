@@ -15,11 +15,11 @@
 .kd-eyebrow {
     display: inline-flex; align-items: center; gap: .45rem;
     font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-    color: var(--kreck-ink-muted, #5a6b7b); margin: 0;
+    color: var(--kreck-ink-muted, #5b6450); margin: 0;
 }
-.kd-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--kreck-amber, #f2a43c); }
+.kd-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--kreck-amber, #e6b765); }
 .kd-title { font-size: clamp(1.5rem, 3.4vw, 2.1rem); font-weight: 800; letter-spacing: -.02em; margin: 0; }
-.kd-sub { color: var(--kreck-ink-muted, #5a6b7b); margin: 0; }
+.kd-sub { color: var(--kreck-ink-muted, #5b6450); margin: 0; }
 
 // --- Streak hero (learner) --------------------------------------------------
 .kd-hero {
@@ -29,17 +29,17 @@
     color: #fff;
     background:
         radial-gradient(160px 100px at 88% -30%, rgba(242, 164, 60, .45), transparent 70%),
-        var(--kreck-slate-900, #0f1e2e);
+        var(--kreck-slate-900, #10150d);
 }
 .kd-flame {
     display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
-    color: var(--kreck-amber, #f2a43c); background: rgba(242, 164, 60, .16); flex: none;
+    color: var(--kreck-amber, #e6b765); background: rgba(242, 164, 60, .16); flex: none;
 }
 .kd-hero-num { font-size: 2.2rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
 .kd-hero-unit { font-size: .82rem; color: #c3cdd6; margin-top: .2rem; }
 .kd-hero-side {
     margin-left: auto; font-size: .72rem; font-weight: 700; letter-spacing: .05em;
-    text-transform: uppercase; color: var(--kreck-amber, #f2a43c);
+    text-transform: uppercase; color: var(--kreck-amber, #e6b765);
 }
 
 // --- Tiles ------------------------------------------------------------------
@@ -61,10 +61,10 @@
     padding: 1rem 1.1rem;
     box-shadow: 0 1px 2px rgba(15, 30, 46, .04), 0 6px 18px rgba(15, 30, 46, .05);
 }
-.kd-tile-label { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: var(--kreck-ink-muted, #5a6b7b); }
-.kd-tile-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; color: var(--kreck-ink, #13212e); font-variant-numeric: tabular-nums; }
+.kd-tile-label { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: var(--kreck-ink-muted, #5b6450); }
+.kd-tile-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; color: var(--kreck-ink, #10150d); font-variant-numeric: tabular-nums; }
 .kd-tile-value--sm { font-size: 1.15rem; }
-.kd-tile-sub { font-size: .8rem; color: var(--kreck-ink-muted, #5a6b7b); margin-top: .1rem; }
+.kd-tile-sub { font-size: .8rem; color: var(--kreck-ink-muted, #5b6450); margin-top: .1rem; }
 .kd-sub--warn { color: #a9681a; font-weight: 700; }
 .kd-tile--stat .kd-tile-value { margin-bottom: .1rem; }
 
@@ -83,7 +83,7 @@
 .kd-list-label { font-weight: 600; min-width: 0; }
 .kd-list-value { font-weight: 700; font-variant-numeric: tabular-nums; color: #9a2c20; }
 .kd-bar { height: 8px; border-radius: 999px; background: rgba(15, 30, 46, .08); overflow: hidden; }
-.kd-bar-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f2a43c, #c0392b); }
+.kd-bar-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #e6b765, #c0392b); }
 @media (max-width: 560px) {
     .kd-list-row { grid-template-columns: 1fr auto; }
     .kd-list-row .kd-bar { display: none; }
@@ -95,15 +95,15 @@
     display: block; padding: .85rem 1rem;
     border: 1px solid var(--kreck-border, rgba(15, 30, 46, .08));
     border-radius: var(--mds-border-radius-md, 12px);
-    font-weight: 600; text-decoration: none; color: var(--kreck-ink, #13212e);
+    font-weight: 600; text-decoration: none; color: var(--kreck-ink, #10150d);
     background: var(--kreck-surface-subtle, #f5f7fa);
 }
-.kd-lesson a:hover { background: var(--kreck-teal-050, #e8f4f1); color: var(--kreck-teal-700, #166a59); }
+.kd-lesson a:hover { background: var(--kreck-teal-050, #eef1e8); color: var(--kreck-teal-700, #3c5618); }
 
 // --- Notes / empties --------------------------------------------------------
 .kd-note { font-size: .85rem; font-weight: 600; padding: .65rem .85rem; border-radius: var(--mds-border-radius-md, 12px); }
-.kd-note--warn { color: #8a5a12; background: var(--kreck-amber-050, #fdf1df); }
-.kd-empty { color: var(--kreck-ink-muted, #5a6b7b); margin: 0; }
+.kd-note--warn { color: #8a5a12; background: var(--kreck-amber-050, #f6f0e0); }
+.kd-empty { color: var(--kreck-ink-muted, #5b6450); margin: 0; }
 .kd-empty--card {
     background: var(--kreck-surface, #fff); border: 1px dashed var(--kreck-border, rgba(15, 30, 46, .15));
     border-radius: var(--mds-border-radius-lg, 16px); padding: 1.5rem 1.25rem; text-align: center;
@@ -112,15 +112,15 @@
 // --- Parent child card ------------------------------------------------------
 .kd-childcard { display: flex; flex-direction: column; gap: 1rem; }
 .kd-childcard-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -.01em; }
-.kd-childnote { color: var(--kreck-ink-muted, #5a6b7b); margin: 0; }
+.kd-childnote { color: var(--kreck-ink-muted, #5b6450); margin: 0; }
 
 // --- Institution quick links ------------------------------------------------
 .kd-links { display: flex; flex-wrap: wrap; gap: .6rem; }
 .kd-link {
     padding: .5rem .95rem; border-radius: 999px; font-weight: 600; text-decoration: none;
-    color: #fff; background: var(--kreck-teal, #1e8a74);
+    color: #fff; background: var(--kreck-teal, #52701f);
 }
-.kd-link:hover { background: var(--kreck-teal-600, #1a7c68); color: #fff; }
+.kd-link:hover { background: var(--kreck-teal-600, #466119); color: #fff; }
 
 // Dark mode tweaks.
 [data-bs-theme="dark"] {

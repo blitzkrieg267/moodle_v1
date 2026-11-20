@@ -7,14 +7,14 @@
 // ============================================================================
 
 // --- Core brand palette -----------------------------------------------------
-// Teal drives primary actions (learning-positive); amber is the reward/accent;
-// slate is the structural tone; steel blue is the institutional/info tone.
-$primary:   #1e8a74;   // Teal   — primary interactive.
-$secondary: #16293b;   // Slate  — structural.
-$success:   #1e8a74;   // Teal   — success / completion.
-$info:      #2f6da3;   // Steel  — informational / institutional.
-$warning:   #f2a43c;   // Amber  — reward / streak / attention.
-$danger:    #c0392b;   // Red    — destructive / errors.
+// KRECK "Overstory" palette: leaf-green drives primary actions; gold is the
+// reward/accent; deep-olive is the structural tone; steel blue stays for info.
+$primary:   #52701f;   // Leaf green — primary interactive.
+$secondary: #20301a;   // Deep olive — structural.
+$success:   #4cbb3f;   // Green      — success / completion.
+$info:      #2f6da3;   // Steel      — informational / institutional.
+$warning:   #e6b765;   // Gold       — reward / streak / attention.
+$danger:    #c0392b;   // Red        — destructive / errors.
 
 // --- Typography -------------------------------------------------------------
 // System-first stack: zero web-font download keeps pages light on the
@@ -23,6 +23,10 @@ $danger:    #c0392b;   // Red    — destructive / errors.
 // UI font is used. (No @font-face / no network request is added by the theme.)
 $font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+
+// Editorial serif for headings (the Overstory look), paired with the Inter
+// body. Georgia is web-safe, so no web-font download is added.
+$headings-font-family: Georgia, "Times New Roman", Times, serif;
 
 // --- Shape ------------------------------------------------------------------
 // Rounder, more app-like corners for Bootstrap components.

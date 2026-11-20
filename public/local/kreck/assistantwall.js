@@ -14,8 +14,8 @@
     ],
     placeholder: "Ask KRECK anything...",
     interval: 9, speed: 1,
-    background: "#0f1e2e", glow: "#1e8a74", haze: "#14564b",
-    glass: "#2a4a5e", accent: "#0f2233", text: "#eaf2f0",
+    background: "#10150d", glow: "#52701f", haze: "#2f4214",
+    glass: "#2a4a5e", accent: "#10150d", text: "#edf1e6",
     font: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     badge: "kreck",
     onSelect: function () {}
@@ -215,12 +215,12 @@
         "radial-gradient(ellipse 24% 20% at 74% 31%, rgba(214, 255, 244, 0.42), rgba(214, 255, 244, 0.16) 55%, rgba(214, 255, 244, 0) 100%)",
         "radial-gradient(ellipse 40.6% 72.1% at 2% -20.8%, rgba(150, 240, 214, 1), rgba(150, 240, 214, 0.5) 55%, rgba(150, 240, 214, 0) 100%)",
         "radial-gradient(ellipse 26.3% 27.9% at 100.4% 42.7%, rgba(242, 164, 60, 1), rgba(242, 164, 60, 0.5) 55%, rgba(242, 164, 60, 0) 100%)",
-        "radial-gradient(ellipse 28.2% 25.2% at 58.2% 38.4%, rgba(30, 138, 116, 1), rgba(30, 138, 116, 0.5) 55%, rgba(30, 138, 116, 0) 100%)",
+        "radial-gradient(ellipse 28.2% 25.2% at 58.2% 38.4%, rgba(82, 112, 31, 1), rgba(82, 112, 31, 0.5) 55%, rgba(82, 112, 31, 0) 100%)",
         "radial-gradient(ellipse 37.3% 18.4% at 72.3% 30.9%, rgba(174, 231, 220, 1), rgba(174, 231, 220, 0.5) 55%, rgba(174, 231, 220, 0) 100%)",
         "radial-gradient(ellipse 67.2% 14.1% at 34.8% 18.4%, rgba(6, 20, 30, 1), rgba(6, 20, 30, 0.5) 55%, rgba(6, 20, 30, 0) 100%)",
         "radial-gradient(ellipse 23.3% 10% at 72.6% 20.1%, rgba(47, 208, 181, 1), rgba(47, 208, 181, 0.5) 55%, rgba(47, 208, 181, 0) 100%)",
         "radial-gradient(ellipse 46% 40% at 30% 78%, rgba(4, 14, 24, 0.7), rgba(4, 14, 24, 0) 100%)",
-        `radial-gradient(circle 56px at 39.7% 104.4%, ${ac(35, "#060e18")} 0%, ${ac(55, "#060e18")} 40%, ${CONFIG.accent} 75%, ${ac(60, "#1e8a74")} 100%)`
+        `radial-gradient(circle 56px at 39.7% 104.4%, ${ac(35, "#060e18")} 0%, ${ac(55, "#060e18")} 40%, ${CONFIG.accent} 75%, ${ac(60, "#52701f")} 100%)`
       ].join(", ");
 
       // -----------------------------------------------------------------------
@@ -744,4 +744,400 @@
       handleResize();
       handleResize();
       if (!reducedMotion) { startLoop(); }
+})();
+
+(function () {
+  "use strict";
+  const config = window.KRECK_COURSE_WALL;
+  const viewport = document.getElementById("kl-course-wall");
+  const grid = document.getElementById("kl-courses");
+  if (!config || !viewport || !grid) return;
+
+  const search = document.getElementById("kl-search");
+  const navigation = document.querySelector(".kl-course-navigation");
+  const previousButton = document.getElementById("kl-course-previous");
+  const nextButton = document.getElementById("kl-course-next");
+  const position = document.getElementById("kl-course-position");
+  const noResults = document.getElementById("kl-no-results");
+  const labels = config.labels || {};
+  const accents = ["#52701f", "#2f6da3", "#e6b765", "#10150d"];
+  const courses = Array.isArray(config.courses) ? config.courses : [];
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const allMotionClasses = [
+    "is-panning-right", "is-panning-down", "is-panning-left", "is-panning-up",
+    "is-arriving-from-right", "is-arriving-from-bottom",
+    "is-arriving-from-left", "is-arriving-from-top"
+  ];
+  const entrySide = {
+    right: "right",
+    down: "bottom",
+    left: "left",
+    up: "top"
+  };
+  const state = {
+    filtered: courses.slice(),
+    cursor: 0,
+    animating: false,
+    reducedMotion: motionQuery.matches,
+    inView: true,
+    autoTimer: 0,
+    pointer: null,
+    cancelPan: null
+  };
+
+  function wrap(index, length) {
+    return length ? ((index % length) + length) % length : 0;
+  }
+
+  function localizedCourseLabel(code) {
+    return String(labels.course || "Course {code}").replace("{code}", code);
+  }
+
+  function createStat(value, label) {
+    const stat = document.createElement("span");
+    stat.className = "kl-card-stat";
+    const count = document.createElement("span");
+    count.className = "kl-card-stat-value";
+    count.textContent = String(Number(value) || 0);
+    const name = document.createElement("span");
+    name.className = "kl-card-stat-label";
+    name.textContent = label;
+    stat.append(count, name);
+    return stat;
+  }
+
+  function createCourseCard(course, filteredIndex) {
+    const card = document.createElement("article");
+    card.className = "kl-course-card";
+    card.setAttribute("role", "listitem");
+    card.setAttribute("aria-labelledby", `kl-course-title-${course.id}`);
+    card.style.setProperty("--kl-card-accent", accents[filteredIndex % accents.length]);
+
+    const glass = document.createElement("div");
+    glass.className = "kl-card-glass";
+    const avatar = document.createElement("div");
+    avatar.className = "kl-card-avatar";
+    avatar.setAttribute("aria-hidden", "true");
+    const badge = document.createElement("span");
+    badge.className = "kl-card-badge";
+    badge.textContent = course.monogram || "";
+    avatar.appendChild(badge);
+
+    const content = document.createElement("div");
+    content.className = "kl-card-content";
+    const kicker = document.createElement("span");
+    kicker.className = "kl-card-kicker";
+    kicker.textContent = localizedCourseLabel(course.shortname || "");
+    const title = document.createElement("h3");
+    title.className = "kl-card-title";
+    title.id = `kl-course-title-${course.id}`;
+    title.textContent = course.fullname || "";
+    const category = document.createElement("span");
+    category.className = "kl-card-cat";
+    category.textContent = course.categoryname || "";
+
+    const stats = document.createElement("div");
+    stats.className = "kl-card-stats";
+    const courseStats = course.stats || {};
+    stats.append(
+      createStat(courseStats.activities, labels.activities || "Activities"),
+      createStat(courseStats.lessons, labels.lessons || "Lessons"),
+      createStat(courseStats.discussions, labels.discussions || "Discussions")
+    );
+
+    const description = document.createElement("div");
+    description.className = "kl-card-desc";
+    description.id = `kl-course-desc-${course.id}`;
+    description.style.setProperty("--kl-clamp", "3");
+    description.innerHTML = course.summary || "";
+
+    content.append(kicker, title, category, stats, description);
+    if (course.hasdescription) {
+      const toggle = document.createElement("button");
+      toggle.className = "kl-card-toggle";
+      toggle.type = "button";
+      toggle.setAttribute("aria-controls", description.id);
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.dataset.more = labels.readmore || "Read more";
+      toggle.dataset.less = labels.readless || "Read less";
+      toggle.textContent = toggle.dataset.more;
+      content.appendChild(toggle);
+    }
+
+    const footer = document.createElement("a");
+    footer.className = "kl-card-foot";
+    footer.href = course.url || "#";
+    const viewLabel = document.createElement("span");
+    viewLabel.textContent = labels.viewcourse || "View course";
+    const arrow = document.createElement("span");
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "\u2192";
+    footer.append(viewLabel, arrow);
+
+    glass.append(avatar, content, footer);
+    card.appendChild(glass);
+    return card;
+  }
+
+  function updatePosition() {
+    if (!position) return;
+    if (!state.filtered.length) {
+      position.textContent = "";
+      return;
+    }
+    position.textContent = String(labels.position || "Course {index} of {total}")
+      .replace("{index}", String(state.cursor + 1))
+      .replace("{total}", String(state.filtered.length));
+  }
+
+  function render() {
+    const count = state.filtered.length;
+    const visibleCount = Math.min(6, count);
+    const fragment = document.createDocumentFragment();
+    for (let offset = 0; offset < visibleCount; offset++) {
+      const index = wrap(state.cursor + offset, count);
+      fragment.appendChild(createCourseCard(state.filtered[index], index));
+    }
+    grid.replaceChildren(fragment);
+    grid.hidden = count === 0;
+    if (noResults) noResults.hidden = count !== 0;
+    if (navigation) navigation.hidden = count < 2;
+    updatePosition();
+  }
+
+  function pan(direction, step) {
+    const count = state.filtered.length;
+    if (count < 2 || state.animating) return;
+
+    state.animating = true;
+    grid.classList.remove(...allMotionClasses);
+    let outTimer = 0;
+    let arrivalTimer = 0;
+    let arrivalHandler = null;
+    const outClass = `is-panning-${direction}`;
+    const arrivalClass = `is-arriving-from-${entrySide[direction]}`;
+    const cancelPan = () => {
+      window.clearTimeout(outTimer);
+      window.clearTimeout(arrivalTimer);
+      grid.removeEventListener("animationend", onPanOut);
+      if (arrivalHandler) grid.removeEventListener("animationend", arrivalHandler);
+      grid.classList.remove(outClass, arrivalClass);
+      state.animating = false;
+      state.cancelPan = null;
+    };
+    state.cancelPan = cancelPan;
+
+    const finishPan = () => {
+      if (!state.animating) return;
+      window.clearTimeout(outTimer);
+      grid.removeEventListener("animationend", onPanOut);
+      grid.classList.remove(outClass);
+      state.cursor = wrap(state.cursor + step, count);
+      render();
+
+      if (state.reducedMotion) {
+        state.animating = false;
+        state.cancelPan = null;
+        return;
+      }
+
+      const finishArrival = (event) => {
+        if (event && (event.target !== grid || !event.animationName.startsWith("kl-pan-in-"))) return;
+        window.clearTimeout(arrivalTimer);
+        grid.removeEventListener("animationend", finishArrival);
+        grid.classList.remove(arrivalClass);
+        state.animating = false;
+        state.cancelPan = null;
+      };
+      arrivalHandler = finishArrival;
+      grid.addEventListener("animationend", finishArrival);
+      grid.classList.add(arrivalClass);
+      arrivalTimer = window.setTimeout(() => finishArrival(), 340);
+    };
+    const onPanOut = (event) => {
+      if (event.target === grid && event.animationName.startsWith("kl-pan-out-")) finishPan();
+    };
+
+    if (state.reducedMotion) {
+      state.animating = false;
+      state.cursor = wrap(state.cursor + step, count);
+      render();
+      return;
+    }
+
+    grid.addEventListener("animationend", onPanOut);
+    grid.classList.add(outClass);
+    outTimer = window.setTimeout(finishPan, 240);
+  }
+
+  function goNext(direction) {
+    pan(direction, 1);
+  }
+
+  function goPrevious(direction) {
+    pan(direction, -1);
+  }
+
+  if (search) {
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLocaleLowerCase();
+      state.filtered = courses.filter((course) =>
+        String(course.searchtext || "").toLocaleLowerCase().includes(query)
+      );
+      state.cursor = 0;
+      if (state.cancelPan) state.cancelPan();
+      render();
+    });
+  }
+
+  grid.addEventListener("click", (event) => {
+    const toggle = event.target.closest(".kl-card-toggle");
+    if (!toggle) return;
+    const description = document.getElementById(toggle.getAttribute("aria-controls"));
+    if (!description) return;
+    const expanded = !description.classList.contains("kl-expanded");
+    description.classList.toggle("kl-expanded", expanded);
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.textContent = expanded ? toggle.dataset.less : toggle.dataset.more;
+  });
+
+  if (previousButton) previousButton.addEventListener("click", () => goPrevious("left"));
+  if (nextButton) nextButton.addEventListener("click", () => goNext("right"));
+  viewport.addEventListener("keydown", (event) => {
+    if (event.target !== viewport) return;
+    const directions = {
+      ArrowRight: ["right", 1],
+      ArrowDown: ["down", 1],
+      ArrowLeft: ["left", -1],
+      ArrowUp: ["up", -1]
+    };
+    const selection = directions[event.key];
+    if (!selection) return;
+    event.preventDefault();
+    pan(selection[0], selection[1]);
+  });
+
+  // Minimum travel (px) before a gesture counts as a swipe at all.
+  const SWIPE_MIN = 36;
+  // The dominant axis must beat the other by this factor, otherwise the
+  // gesture is treated as an ambiguous ~45° diagonal and ignored. This is the
+  // diagonal dead-zone that stops up/down and left/right fighting each other.
+  const AXIS_RATIO = 1.35;
+
+  // Resolve a 2-D delta to a single-axis pan [direction, step], or null when
+  // the gesture is too small or too diagonal to be unambiguous.
+  function resolveAxis(dx, dy) {
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (Math.max(absX, absY) < SWIPE_MIN) return null;
+    if (absX >= absY) {
+      if (absX < absY * AXIS_RATIO) return null; // ambiguous diagonal
+      return dx > 0 ? ["right", 1] : ["left", -1];
+    }
+    if (absY < absX * AXIS_RATIO) return null;   // ambiguous diagonal
+    return dy > 0 ? ["down", 1] : ["up", -1];
+  }
+
+  function finishPointer(event) {
+    const pointer = state.pointer;
+    if (!pointer || pointer.id !== event.pointerId) return;
+    const x = event.type !== "pointercancel" && Number.isFinite(event.clientX)
+      ? event.clientX : pointer.lastX;
+    const y = event.type !== "pointercancel" && Number.isFinite(event.clientY)
+      ? event.clientY : pointer.lastY;
+    state.pointer = null;
+    // Lock out new pans while one is in flight (pan() also guards on this, but
+    // bail early so an ambiguous release can never queue behind the animation).
+    if (state.animating) return;
+    const selection = resolveAxis(x - pointer.x, y - pointer.y);
+    if (!selection) return;
+    pan(selection[0], selection[1]);
+  }
+
+  viewport.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if (event.target.closest("a, button, input, textarea, select")) return;
+    state.pointer = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      lastX: event.clientX,
+      lastY: event.clientY
+    };
+    if (viewport.setPointerCapture) viewport.setPointerCapture(event.pointerId);
+  });
+  viewport.addEventListener("pointermove", (event) => {
+    if (!state.pointer || state.pointer.id !== event.pointerId) return;
+    state.pointer.lastX = event.clientX;
+    state.pointer.lastY = event.clientY;
+  });
+  viewport.addEventListener("pointerup", finishPointer);
+  viewport.addEventListener("pointercancel", finishPointer);
+
+  // Trackpad / wheel path. There is no native scroll inside the wall, so a
+  // two-finger trackpad swipe arrives as wheel events. We only hijack clearly
+  // HORIZONTAL gestures (deltaX dominant) so vertical page scrolling is never
+  // trapped on this public landing page. Deltas are accumulated and debounced,
+  // run through the same resolveAxis dead-zone, and a short cooldown plus the
+  // state.animating guard stop a single flick from double-firing. ---------- */
+  const wheel = { x: 0, y: 0, timer: 0, cooldown: false };
+  const WHEEL_TRIGGER = 48;
+  viewport.addEventListener("wheel", (event) => {
+    if (state.reducedMotion || state.filtered.length < 2) return;
+    // Ignore vertical-dominant scrolls entirely — let the page scroll.
+    if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+    event.preventDefault();
+    if (state.animating || wheel.cooldown) return;
+    wheel.x += event.deltaX;
+    wheel.y += event.deltaY;
+    window.clearTimeout(wheel.timer);
+    wheel.timer = window.setTimeout(() => { wheel.x = 0; wheel.y = 0; }, 180);
+    if (Math.abs(wheel.x) < WHEEL_TRIGGER) return;
+    const selection = resolveAxis(wheel.x, wheel.y);
+    wheel.x = 0;
+    wheel.y = 0;
+    if (!selection) return;
+    pan(selection[0], selection[1]);
+    wheel.cooldown = true;
+    window.setTimeout(() => { wheel.cooldown = false; }, 420);
+  }, { passive: false });
+
+  function stopAutoPan() {
+    if (!state.autoTimer) return;
+    window.clearInterval(state.autoTimer);
+    state.autoTimer = 0;
+  }
+
+  function startAutoPan() {
+    if (state.autoTimer || state.reducedMotion || !state.inView ||
+        document.visibilityState === "hidden" || Number(config.interval) <= 0 ||
+        state.filtered.length < 2) return;
+    state.autoTimer = window.setInterval(() => goNext("down"), Number(config.interval) * 1000);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") stopAutoPan();
+    else startAutoPan();
+  });
+  if (typeof IntersectionObserver !== "undefined") {
+    const observer = new IntersectionObserver((entries) => {
+      state.inView = entries[0]?.isIntersecting ?? true;
+      if (state.inView) startAutoPan();
+      else stopAutoPan();
+    });
+    observer.observe(viewport);
+  }
+  const handleMotionChange = (event) => {
+    state.reducedMotion = event.matches;
+    if (state.reducedMotion) {
+      stopAutoPan();
+      if (state.cancelPan) state.cancelPan();
+    }
+    else startAutoPan();
+  };
+  if (motionQuery.addEventListener) motionQuery.addEventListener("change", handleMotionChange);
+  else motionQuery.addListener(handleMotionChange);
+
+  render();
+  startAutoPan();
 })();
