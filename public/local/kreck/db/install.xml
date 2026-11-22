@@ -166,5 +166,25 @@
         <INDEX NAME="delivery" UNIQUE="false" FIELDS="status, nextrun"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="local_kreck_parentlink" COMMENT="Links a parent/guardian Moodle user to a child (learner) user, mirrored from the KRECK SMS family. Backs the parent view and makes re-sync idempotent.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="parentuserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The parent/guardian Moodle user."/>
+        <FIELD NAME="childuserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The child (learner) Moodle user."/>
+        <FIELD NAME="sourceid" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" COMMENT="Cross-system source id of the parent (e.g. gibbonPerson:NN)."/>
+        <FIELD NAME="contactpriority" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = primary contact (lower is stronger)."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="parentuserid" TYPE="foreign" FIELDS="parentuserid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="childuserid" TYPE="foreign" FIELDS="childuserid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="parentchild" UNIQUE="true" FIELDS="parentuserid, childuserid"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

@@ -186,5 +186,39 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112100, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112200) {
+        // Parent mirror: a table of parent↔child links, and the KRECK Parent
+        // role (user-context assignable) that lets a parent see their child's
+        // KRECK summary + fees. The new local/kreck:viewchild capability is
+        // registered by Moodle right after this step from db/access.php.
+        $table = new xmldb_table('local_kreck_parentlink');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('parentuserid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('childuserid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('sourceid', XMLDB_TYPE_CHAR, '64', null, null, null, null);
+            $table->add_field('contactpriority', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+            $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('parentuserid', XMLDB_KEY_FOREIGN, ['parentuserid'], 'user', ['id']);
+            $table->add_key('childuserid', XMLDB_KEY_FOREIGN, ['childuserid'], 'user', ['id']);
+            $table->add_index('parentchild', XMLDB_INDEX_UNIQUE, ['parentuserid', 'childuserid']);
+            $dbman->create_table($table);
+        }
+
+        // Register the new capability first, then create the role that holds it.
+        update_capabilities('local_kreck');
+        // Make sure the plugin's new lang strings are readable now, so the role
+        // is created with its proper name (not a "[[parentrole]]" placeholder)
+        // even if the string cache predates this upgrade.
+        get_string_manager()->reset_caches();
+        \local_kreck\parentrole::ensure();
+
+        set_config('local_kreck/changelogversion', 2026112200);
+        upgrade_plugin_savepoint(true, 2026112200, 'local', 'kreck');
+    }
+
     return true;
 }

@@ -483,6 +483,7 @@ class engine {
         $record = ['batchid' => $this->batchid, 'timecreated' => time(),
             'categories' => [], 'users' => [], 'cohorts' => [], 'courses' => [], 'existingcourses' => [],
             'cms' => [], 'coursemap' => [], 'enrolments' => [], 'calendar_events' => 0,
+            'parents' => [], 'parentlinks' => 0,
             'mergeCms' => [], 'mergeEvents' => []];
         $suppressoutbound = ($manifest->meta()['source'] ?? '') === 'Kreck Bridge';
         if ($suppressoutbound) {
@@ -552,6 +553,35 @@ class engine {
                 if ($made) {
                     $log[] = get_string('onb_log_studentsgenerated', 'local_kreck',
                         (object) ['count' => $made, 'prefix' => $g['prefix'] ?? 'student']);
+                }
+            }
+
+            // 2e. Parents / guardians (the parent mirror). Create the parent
+            // account, then assign the KRECK Parent role in each linked child's
+            // USER context so the parent can see that child's KRECK summary +
+            // fees — and only their own children (least privilege). Idempotent:
+            // user matched by username, role_assign is a no-op if already set,
+            // and the parentlink row is unique per (parent, child).
+            $parents = $manifest->parents();
+            if (!empty($parents)) {
+                $parentroleid = \local_kreck\parentrole::get_id();
+                foreach ($parents as $p) {
+                    [$puid, $pcreated] = $this->ensure_user($p, ['idnumber' => $p['source_id'] ?? '']);
+                    if ($pcreated) {
+                        $record['parents'][] = $puid;
+                        $log[] = get_string('onb_log_parentcreated', 'local_kreck', $p['username'] ?? $p['source_id'] ?? '');
+                    }
+                    foreach (($p['children'] ?? []) as $childkey) {
+                        $childuserid = (int) $DB->get_field('local_kreck_student', 'userid',
+                            ['studentid' => (string) $childkey]);
+                        if ($childuserid <= 0) {
+                            continue; // child not imported (e.g. limited export) — skip, re-links next sync.
+                        }
+                        $childcontext = \context_user::instance($childuserid);
+                        role_assign($parentroleid, $puid, $childcontext->id); // idempotent in core.
+                        $this->ensure_parentlink($puid, $childuserid, $p);
+                        $record['parentlinks']++;
+                    }
                 }
             }
 
@@ -1100,13 +1130,22 @@ class engine {
      * @param array $u
      * @return array [int id, bool created]
      */
-    protected function ensure_user(array $u): array {
+    protected function ensure_user(array $u, array $opts = []): array {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/user/lib.php');
+
+        // Optional cross-system id to stamp on the Moodle user (traceability).
+        $idnumber = !empty($opts['idnumber']) ? (string) $opts['idnumber'] : '';
 
         $username = $u['username'] ?? ($u['email'] ?? '');
         $existing = $DB->get_record_select('user', 'username = :u AND deleted = 0', ['u' => $username]);
         if ($existing) {
+            // Backfill idnumber if asked and currently empty (never clobber, keep unique).
+            if ($idnumber !== '' && (string) $existing->idnumber === ''
+                    && !$DB->record_exists_select('user', 'idnumber = :i AND id <> :id AND deleted = 0',
+                        ['i' => $idnumber, 'id' => $existing->id])) {
+                $DB->set_field('user', 'idnumber', $idnumber, ['id' => $existing->id]);
+            }
             return [(int) $existing->id, false];
         }
 
@@ -1119,6 +1158,9 @@ class engine {
             'lastname' => $u['lastname'] ?? 'User',
             'email' => $u['email'] ?? ($username . '@example.invalid'),
         ];
+        if ($idnumber !== '' && !$DB->record_exists_select('user', 'idnumber = :i AND deleted = 0', ['i' => $idnumber])) {
+            $new->idnumber = $idnumber;
+        }
 
         // Starter password: per-row, else the run default. With a password set,
         // the account can log in; without one it is created password-less.
@@ -1172,6 +1214,36 @@ class engine {
             return true;
         } catch (\Throwable $e) {
             debugging('local_kreck: could not store student record for userid ' . $userid
+                . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return false;
+        }
+    }
+
+    /**
+     * Upsert a parent↔child link row (unique per pair), so re-sync is idempotent
+     * and the parent "My children" view has a data source. Best-effort.
+     *
+     * @param int $parentuserid
+     * @param int $childuserid
+     * @param array $p The manifest parent row (source_id, contactpriority).
+     * @return bool
+     */
+    protected function ensure_parentlink(int $parentuserid, int $childuserid, array $p): bool {
+        if ($parentuserid <= 0 || $childuserid <= 0) {
+            return false;
+        }
+        try {
+            $existing = \local_kreck\persistent\parentlink::get_record(
+                ['parentuserid' => $parentuserid, 'childuserid' => $childuserid]);
+            $link = $existing ?: new \local_kreck\persistent\parentlink();
+            $link->set('parentuserid', $parentuserid);
+            $link->set('childuserid', $childuserid);
+            $link->set('sourceid', isset($p['source_id']) ? (string) $p['source_id'] : null);
+            $link->set('contactpriority', (int) ($p['contactpriority'] ?? 1));
+            $link->save();
+            return true;
+        } catch (\Throwable $e) {
+            debugging('local_kreck: could not store parent link ' . $parentuserid . '->' . $childuserid
                 . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
             return false;
         }

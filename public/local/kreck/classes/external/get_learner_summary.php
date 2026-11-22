@@ -60,12 +60,18 @@ class get_learner_summary extends external_api {
 
         $context = \context_system::instance();
         self::validate_context($context);
-        require_capability('local/kreck:view', $context);
 
-        if (empty($userid)) {
+        if (empty($userid) || $userid === (int) $USER->id) {
+            // Your own record: the learner self-service capability.
             $userid = (int) $USER->id;
-        } else if ($userid !== (int) $USER->id) {
-            // Reading someone else's record requires the institution-level capability.
+            require_capability('local/kreck:view', $context);
+        } else if (has_capability('local/kreck:viewchild', \context_user::instance($userid))) {
+            // A linked parent/guardian: the KRECK Parent role assigned in THIS
+            // child's user context. Scoped to their own children only, so no
+            // system-wide capability is required — access is already granted.
+            $userid = (int) $userid;
+        } else {
+            // Anyone else reading another learner's record is institution staff.
             require_capability('local/kreck:viewinstitution', $context);
         }
 

@@ -58,4 +58,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+
+    // View a specific learner's KRECK summary + fees. Checked in the CHILD's
+    // user context, so a parent/guardian granted this (via the kreckparent role
+    // assigned in their child's user context) sees only their own children.
+    // No stock archetype has it; it is granted on the kreckparent role created
+    // by the plugin's install/upgrade (see classes/parentrole.php).
+    'local/kreck:viewchild' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => [],
+    ],
 ];

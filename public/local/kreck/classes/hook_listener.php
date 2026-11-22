@@ -222,10 +222,30 @@ HTML
      * @param \core\hook\navigation\primary_extend $hook
      */
     public static function extend_primary_navigation(\core\hook\navigation\primary_extend $hook): void {
+        global $USER;
+        $primary = $hook->get_primaryview();
+
+        // Parent mirror: a "My children" entry for any user with linked children,
+        // independent of the public landing page. Shown only when the current
+        // user actually has at least one mirrored child link.
+        if (isloggedin() && !isguestuser()
+                && !$primary->get('kreckchildren', \navigation_node::TYPE_CUSTOM)
+                && \local_kreck\persistent\parentlink::count_records(['parentuserid' => (int) $USER->id]) > 0) {
+            $childrennode = \navigation_node::create(
+                get_string('mychildren', 'local_kreck'),
+                new \moodle_url('/local/kreck/children.php'),
+                \navigation_node::TYPE_CUSTOM,
+                null,
+                'kreckchildren',
+                new \pix_icon('i/users', '')
+            );
+            $childrennode->showinflatnavigation = true;
+            $primary->add_node($childrennode, 'myhome');
+        }
+
         if (!get_config('local_kreck', 'landingenabled')) {
             return;
         }
-        $primary = $hook->get_primaryview();
         if ($primary->get('kreckhome', \navigation_node::TYPE_CUSTOM)) {
             return;
         }

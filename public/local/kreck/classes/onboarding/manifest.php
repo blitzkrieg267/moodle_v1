@@ -127,6 +127,17 @@ class manifest {
     }
 
     /**
+     * Parents / guardians to mirror (optional; older SMS exports omit it).
+     * Each has source_id, username, firstname, lastname, email, children[]
+     * (child studentid join keys) and contactpriority.
+     *
+     * @return array
+     */
+    public function parents(): array {
+        return $this->data['parents'] ?? [];
+    }
+
+    /**
      * Bulk student generators: [{count, prefix, cohort?, emaildomain?, ...}].
      *
      * @return array

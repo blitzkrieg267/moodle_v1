@@ -35,5 +35,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_local_kreck_install() {
     \local_kreck\hardening::apply();
+    // Fresh installs do not run db/upgrade.php, so create the KRECK Parent role
+    // here too (idempotent, user-context assignable — the parent mirror).
+    \local_kreck\parentrole::ensure();
     return true;
 }

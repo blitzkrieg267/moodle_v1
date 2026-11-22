@@ -266,6 +266,29 @@ class sync_manifest extends external_api {
                 }
             }
         }
+
+        // Parents are an OPTIONAL collection (older SMS exports omit it, and
+        // must still import). Validate only when present.
+        if (isset($data['parents'])) {
+            if (!is_array($data['parents']) || !array_is_list($data['parents'])) {
+                throw new \invalid_parameter_exception("Manifest collection 'parents' must be an array.");
+            }
+            foreach ($data['parents'] as $entry) {
+                if (!is_array($entry)) {
+                    throw new \invalid_parameter_exception("Each 'parents' entry must be an object.");
+                }
+                foreach (['source_id', 'username', 'firstname', 'lastname', 'email'] as $field) {
+                    if (!is_string($entry[$field] ?? null) || trim($entry[$field]) === '') {
+                        throw new \invalid_parameter_exception(
+                            "Each 'parents' entry must include a non-empty '{$field}' string."
+                        );
+                    }
+                }
+                if (!isset($entry['children']) || !is_array($entry['children'])) {
+                    throw new \invalid_parameter_exception("Each 'parents' entry must include a 'children' array.");
+                }
+            }
+        }
     }
 
     /**
