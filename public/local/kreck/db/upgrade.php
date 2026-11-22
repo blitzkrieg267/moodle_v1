@@ -220,5 +220,12 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112200, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112201) {
+        // Migrated the legacy local_kreck_after_config() callback to the modern
+        // \core\hook\after_config hook (registered in db/hooks.php). No schema
+        // change; the hook registry is refreshed automatically on upgrade.
+        upgrade_plugin_savepoint(true, 2026112201, 'local', 'kreck');
+    }
+
     return true;
 }

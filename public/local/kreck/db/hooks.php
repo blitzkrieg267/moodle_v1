@@ -43,4 +43,10 @@ $callbacks = [
         'hook' => \core\hook\navigation\primary_extend::class,
         'callback' => \local_kreck\hook_listener::class . '::extend_primary_navigation',
     ],
+    [
+        // Redirect the site front page to the KRECK welcome page (modern
+        // replacement for the legacy local_kreck_after_config() callback).
+        'hook' => \core\hook\after_config::class,
+        'callback' => \local_kreck\hook_listener::class . '::after_config',
+    ],
 ];

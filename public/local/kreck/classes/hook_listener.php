@@ -261,4 +261,56 @@ HTML
         // Insert before Dashboard ('myhome'); append if that node is absent.
         $primary->add_node($node, 'myhome');
     }
+
+    /**
+     * Send visitors from the site front page to the KRECK landing (welcome) page,
+     * so the navbar logo and the "Home" nav item — which both point at the site
+     * home ('/') — open the KRECK welcome page. Applies to anonymous AND
+     * logged-in users.
+     *
+     * Runs early (before the front page's force-login check), so it works even
+     * when the site forces login. Anyone can still reach Moodle's own front page
+     * with '/?redirect=0'. Gated by the 'landingenabled' setting; disabling it
+     * restores the stock front page for everyone.
+     *
+     * @param \core\hook\after_config $hook
+     * @return void
+     */
+    public static function after_config(\core\hook\after_config $hook): void {
+        global $CFG;
+
+        if (CLI_SCRIPT || (defined('AJAX_SCRIPT') && AJAX_SCRIPT) || (defined('WS_SERVER') && WS_SERVER)) {
+            return;
+        }
+        if (during_initial_install()) {
+            return;
+        }
+        if (!get_config('local_kreck', 'landingenabled')) {
+            return;
+        }
+
+        $me = qualified_me();
+        if (!$me) {
+            return;
+        }
+        $path = strtok($me, '?');
+        $isfrontpage = in_array($path, [
+            $CFG->wwwroot,
+            $CFG->wwwroot . '/',
+            $CFG->wwwroot . '/index.php',
+        ], true);
+        if (!$isfrontpage) {
+            return;
+        }
+        // Never get in the way of an upgrade.
+        if (moodle_needs_upgrading()) {
+            return;
+        }
+        // Standard escape hatch: '/?redirect=0' reaches Moodle's own front page.
+        if (optional_param('redirect', 1, PARAM_BOOL) == 0) {
+            return;
+        }
+
+        redirect(new \moodle_url('/local/kreck/welcome.php'));
+    }
 }
