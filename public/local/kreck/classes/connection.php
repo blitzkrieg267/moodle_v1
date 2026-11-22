@@ -222,12 +222,16 @@ class connection {
             }
         }
 
+        // These record the LMS->SMS (outbound) check only. Do NOT write
+        // 'gibbonheartbeatat' here: that key is the SMS->LMS "last seen" time set
+        // by the ping web service, and writing it here conflated the two
+        // directions on the LMS status page.
         set_config('gibbonheartbeatattempt', $checkedat, 'local_kreck');
         set_config('gibbonheartbeatstatus', $ok ? 'ok' : 'error', 'local_kreck');
         set_config('gibbonheartbeatmessage', clean_param($message, PARAM_TEXT), 'local_kreck');
         set_config('gibbonheartbeatdebug', json_encode($debug, JSON_INVALID_UTF8_SUBSTITUTE), 'local_kreck');
         if ($ok) {
-            set_config('gibbonheartbeatat', $checkedat, 'local_kreck');
+            set_config('gibbonlastoutboundat', $checkedat, 'local_kreck');
         }
 
         return [

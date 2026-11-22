@@ -176,5 +176,15 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026111901, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112100) {
+        // Register the new local_kreck_set_webhook_secret web service, so the
+        // paired KRECK SMS can push the shared HMAC secret over the token channel
+        // (fixes the LMS->SMS webhook failing when the two secrets don't match).
+        external_update_descriptions('local_kreck');
+
+        set_config('local_kreck/changelogversion', 2026112100);
+        upgrade_plugin_savepoint(true, 2026112100, 'local', 'kreck');
+    }
+
     return true;
 }

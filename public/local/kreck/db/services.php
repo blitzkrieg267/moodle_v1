@@ -92,6 +92,15 @@ $functions = [
         'capabilities' => 'local/kreck:manage',
         'services'    => ['local_kreck_service'],
     ],
+    'local_kreck_set_webhook_secret' => [
+        'classname'   => 'local_kreck\\external\\set_webhook_secret',
+        'methodname'  => 'execute',
+        'description' => 'Store the shared webhook signing secret (and optionally the SMS webhook URL) pushed by the paired KRECK SMS.',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
 ];
 
 $services = [
@@ -105,6 +114,7 @@ $services = [
             'local_kreck_ingest_topicstat',
             'local_kreck_sync_manifest',
             'local_kreck_ping',
+            'local_kreck_set_webhook_secret',
         ],
         'restrictedusers' => 1,
         'enabled'         => 0,
