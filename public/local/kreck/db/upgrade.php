@@ -227,5 +227,12 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112201, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112202) {
+        // Added the one-click "Seed LMS Demo" admin page (classes/demo_seeder.php
+        // + demo_seed.php, registered in settings.php). No DB/schema change; the
+        // admin tree is rebuilt automatically after upgrade.
+        upgrade_plugin_savepoint(true, 2026112202, 'local', 'kreck');
+    }
+
     return true;
 }

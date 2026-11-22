@@ -412,3 +412,25 @@ $string['feestatus_0'] = 'Current';
 $string['feestatus_1'] = 'Overdue';
 $string['feestatus_2'] = 'Paid';
 $string['feestatus_3'] = 'Failed mandate';
+
+// One-click LMS demo seeder.
+$string['demoseed'] = 'Seed LMS Demo';
+$string['demoseed_intro'] = 'Stand up a complete demo on this LMS so the whole MicroLearn experience can be shown — no live SMS feed needed. One click creates a demo course with an assignment and marks, 15 logins across every actor, the KRECK learner analytics, and the parent mirror.';
+$string['demoseed_adds'] = 'This run adds:';
+$string['demoseed_i_logins'] = '15 demo logins (admin, principal, finance, registrar, HOD, teachers, support, students, parents) — matching the SMS side';
+$string['demoseed_i_course'] = 'A demo course "KRECK Demo Class" with teachers and students enrolled';
+$string['demoseed_i_assign'] = 'An assignment ("Term Project") with recorded marks in the gradebook';
+$string['demoseed_i_analytics'] = 'KRECK learner analytics — attendance, fee balance, streak and struggle topics';
+$string['demoseed_i_parents'] = 'The parent mirror — each parent linked to their child (KRECK Parent role in the child\'s context)';
+$string['demoseed_idempotent'] = 'Seeding is idempotent — it first clears any previous demo (the demo.* accounts and the demo course) and reseeds. It only adds clearly-marked demo records.';
+$string['demoseed_present'] = 'Demo data is currently present ({$a} demo accounts).';
+$string['demoseed_run'] = 'Seed LMS demo';
+$string['demoseed_reseed'] = 'Re-seed LMS demo';
+$string['demoseed_remove'] = 'Remove demo data';
+$string['demoseed_confirmremove'] = 'Remove all demo data (the demo.* accounts, the demo course and their records)?';
+$string['demoseed_done'] = 'LMS demo seeded. The 15 logins below all use the same password.';
+$string['demoseed_removed'] = 'Removed demo data ({$a} accounts and their records).';
+$string['demoseed_whathappened'] = 'What happened';
+$string['demoseed_logins'] = 'Demo logins';
+$string['demoseed_password'] = 'password for all:';
+$string['demoseed_lmsnote'] = 'These accounts match the SMS demo usernames, so if you also run the SMS seeder and sync, they reconcile into one set of people.';

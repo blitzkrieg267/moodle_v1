@@ -161,6 +161,15 @@ $ADMIN->add('localplugins', new admin_externalpage(
     'local/kreck:manage'
 ));
 
+// One-click LMS demo: a full demo course (with an assignment + marks), 15 logins,
+// learner analytics and the parent mirror — so the whole LMS can be demonstrated.
+$ADMIN->add('localplugins', new admin_externalpage(
+    'local_kreck_demoseed',
+    get_string('demoseed', 'local_kreck'),
+    new moodle_url('/local/kreck/demo_seed.php'),
+    'local/kreck:manage'
+));
+
 // Onboarding & provisioning console.
 $ADMIN->add('localplugins', new admin_externalpage(
     'local_kreck_onboarding',
