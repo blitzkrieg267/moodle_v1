@@ -101,6 +101,15 @@ $functions = [
         'capabilities' => 'local/kreck:manage',
         'services'    => ['local_kreck_service'],
     ],
+    'local_kreck_get_student_marks' => [
+        'classname'   => 'local_kreck\\external\\get_student_marks',
+        'methodname'  => 'execute',
+        'description' => 'Return a student\'s complete gradebook (all courses and grade items) so the KRECK SMS can pull marks live instead of importing an export.',
+        'type'        => 'read',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
 ];
 
 $services = [
@@ -115,6 +124,7 @@ $services = [
             'local_kreck_sync_manifest',
             'local_kreck_ping',
             'local_kreck_set_webhook_secret',
+            'local_kreck_get_student_marks',
         ],
         'restrictedusers' => 1,
         'enabled'         => 0,

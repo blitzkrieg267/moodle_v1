@@ -251,5 +251,12 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112204, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112205) {
+        // New web service local_kreck_get_student_marks — lets the KRECK SMS pull
+        // a student's complete gradebook live. Register the WS descriptions.
+        external_update_descriptions('local_kreck');
+        upgrade_plugin_savepoint(true, 2026112205, 'local', 'kreck');
+    }
+
     return true;
 }
