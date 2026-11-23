@@ -234,5 +234,14 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112202, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112203) {
+        // Fix: removed a dead "changelog awareness" block from settings.php that
+        // called lib.php helpers (undefined once the legacy after_config callback
+        // stopped force-loading lib.php) and referenced a non-existent admin
+        // settings class. It never worked; its removal clears the fatal seen when
+        // the admin settings tree is built. No DB/schema change.
+        upgrade_plugin_savepoint(true, 2026112203, 'local', 'kreck');
+    }
+
     return true;
 }

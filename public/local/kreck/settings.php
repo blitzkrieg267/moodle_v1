@@ -130,26 +130,6 @@ if ($hassiteconfig) {
         0
     ));
 
-    // Changelog awareness: after an upgrade, show the admin what changed in
-    // this version. Marking it read records the version so it won't repeat.
-    $changelogseen = local_kreck_get_changelog_seen_version();
-    if ($changelogseen < $plugin->version) {
-        $changelog = local_kreck_get_changelog();
-        if ($changelog !== '') {
-            $markurl = new moodle_url('/admin/settings.php', [
-                'section' => 'localpluginslocal_kreck',
-                'changelogseen' => 1,
-            ]);
-            if (!empty($_GET['changelogseen'])) {
-                local_kreck_mark_changelog_seen($plugin->version);
-            }
-            $settings->add(new admin_setting_configstatic(
-                'local_kreck/changelognotice',
-                get_string('changelogtitle', 'local_kreck'),
-                $changelog . '<p class="changelog-seen"><a href="' . $markurl->out(false) . '">' . get_string('changelogmarkseen', 'local_kreck') . '</a></p>'
-            ));
-        }
-    }
 }
 
 // Admin tool: seed sample KRECK data onto a learner (capability-gated, so a
