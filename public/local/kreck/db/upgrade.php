@@ -258,5 +258,16 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112205, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112206) {
+        // KRECK branded sign-in page. Turn the new 'loginstyleenabled' setting on
+        // by default so installing the plugin restyles the login page without the
+        // admin having to open settings first. Only set it when unset, so an admin
+        // who deliberately turned it off is never overridden on a later upgrade.
+        if (get_config('local_kreck', 'loginstyleenabled') === false) {
+            set_config('loginstyleenabled', 1, 'local_kreck');
+        }
+        upgrade_plugin_savepoint(true, 2026112206, 'local', 'kreck');
+    }
+
     return true;
 }

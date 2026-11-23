@@ -34,6 +34,11 @@ $callbacks = [
         'callback' => \local_kreck\hook_listener::class . '::add_sms_link',
     ],
     [
+        // Restyle the login page to the KRECK glass/brand aesthetic.
+        'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
+        'callback' => \local_kreck\hook_listener::class . '::style_login_page',
+    ],
+    [
         // Point the navbar logo at the KRECK welcome page (static brand anchor).
         'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
         'callback' => \local_kreck\hook_listener::class . '::retarget_logo',

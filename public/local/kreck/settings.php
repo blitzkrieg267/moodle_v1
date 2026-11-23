@@ -100,6 +100,14 @@ if ($hassiteconfig) {
         1
     ));
 
+    // KRECK branded sign-in page (glass panel on the KRECK gradient).
+    $settings->add(new admin_setting_configcheckbox(
+        'local_kreck/loginstyleenabled',
+        get_string('loginstyleenabled', 'local_kreck'),
+        get_string('loginstyleenabled_desc', 'local_kreck'),
+        1
+    ));
+
     // Public landing page.
     $settings->add(new admin_setting_configcheckbox(
         'local_kreck/landingenabled',
