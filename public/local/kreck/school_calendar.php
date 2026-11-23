@@ -23,6 +23,7 @@
  */
 
 require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php'); // local_kreck_get_school_calendar_course_ids() lives here.
 \local_kreck\diagnostics::register(__FILE__);
 
 require_login();

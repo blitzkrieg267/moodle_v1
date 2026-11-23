@@ -24,6 +24,7 @@
  */
 
 require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php'); // local_kreck_get_landing_courses() etc. live here.
 \local_kreck\diagnostics::register(__FILE__);
 
 global $DB, $OUTPUT, $PAGE, $SITE, $CFG, $USER;

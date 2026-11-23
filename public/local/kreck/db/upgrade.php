@@ -243,5 +243,13 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112203, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112204) {
+        // Fix: welcome.php and school_calendar.php now require(lib.php) — they
+        // call its helper functions and relied on the removed legacy after_config
+        // callback to auto-load it, so they fatalled with "Call to undefined
+        // function local_kreck_get_landing_courses()". No DB/schema change.
+        upgrade_plugin_savepoint(true, 2026112204, 'local', 'kreck');
+    }
+
     return true;
 }
