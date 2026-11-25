@@ -35,13 +35,12 @@ if ($hassiteconfig) {
         1
     ));
 
-    $settings->add(new admin_setting_configtext(
+    $settings->add(new admin_setting_configselect_autocomplete(
         'local_kreck/defaultcurrency',
         get_string('defaultcurrency', 'local_kreck'),
         get_string('defaultcurrency_desc', 'local_kreck'),
         'BWP',
-        PARAM_ALPHA,
-        4
+        \local_kreck\form\pick::currencies()
     ));
 
     // Base URL of the KRECK SMS, used to build "View in KRECK SMS" deep-links.

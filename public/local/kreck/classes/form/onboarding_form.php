@@ -66,7 +66,8 @@ class onboarding_form extends \moodleform {
         $mform->addHelpButton('coursescsv', 'onb_coursescsv', 'local_kreck');
         $mform->hideIf('coursescsv', 'mode', 'neq', 'csv');
 
-        $mform->addElement('text', 'rollbackbatch', get_string('onb_rollbackbatch', 'local_kreck'), ['size' => 42]);
+        $mform->addElement('autocomplete', 'rollbackbatch', get_string('onb_rollbackbatch', 'local_kreck'),
+            pick::batches(), ['multiple' => false, 'noselectionstring' => get_string('onb_pickbatch', 'local_kreck')]);
         $mform->setType('rollbackbatch', PARAM_RAW_TRIMMED);
         $mform->hideIf('rollbackbatch', 'mode', 'neq', 'rollback');
 

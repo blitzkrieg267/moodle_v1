@@ -77,7 +77,7 @@ if ($data = $form->get_data()) {
     $feerec = feeaccount::get_record(['userid' => $uid]) ?: new feeaccount();
     $feerec->set('userid', $uid);
     $feerec->set('balancecents', (int) round(((float) $data->feebalance) * 100));
-    $feerec->set('currency', strtoupper($data->feecurrency));
+    $feerec->set('currency', \local_kreck\form\pick::normalise_currency($data->feecurrency) ?? \local_kreck\form\pick::DEFAULT_CURRENCY);
     $feerec->set('status', (int) $data->feestatus);
     $feerec->set('laststatement', time());
     $feerec->save();

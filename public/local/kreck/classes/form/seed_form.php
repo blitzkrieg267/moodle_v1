@@ -43,13 +43,17 @@ class seed_form extends \moodleform {
 
         // Identity.
         $mform->addElement('header', 'identity', get_string('seed_identity', 'local_kreck'));
-        $mform->addElement('text', 'username', get_string('seed_username', 'local_kreck'));
+        // Searchable user list (type a name or username to filter); the submitted value is still the username.
+        $mform->addElement('autocomplete', 'username', get_string('seed_username', 'local_kreck'),
+            pick::users(), ['multiple' => false, 'noselectionstring' => get_string('seed_pickuser', 'local_kreck')]);
         $mform->setType('username', PARAM_USERNAME);
         $mform->addRule('username', null, 'required', null, 'client');
         $mform->addHelpButton('username', 'seed_username', 'local_kreck');
         $mform->addElement('text', 'studentid', get_string('seed_studentid', 'local_kreck'));
         $mform->setType('studentid', PARAM_RAW);
-        $mform->addElement('text', 'classname', get_string('seed_classname', 'local_kreck'));
+        $mform->addElement('autocomplete', 'classname', get_string('seed_classname', 'local_kreck'),
+            pick::distinct('local_kreck_student', 'classname'),
+            ['multiple' => false, 'tags' => true, 'noselectionstring' => get_string('seed_pickclass', 'local_kreck')]);
         $mform->setType('classname', PARAM_TEXT);
 
         // Engagement.
@@ -75,9 +79,10 @@ class seed_form extends \moodleform {
         $mform->addElement('text', 'feebalance', get_string('seed_feebalance', 'local_kreck'));
         $mform->setType('feebalance', PARAM_FLOAT);
         $mform->setDefault('feebalance', 450);
-        $mform->addElement('text', 'feecurrency', get_string('seed_feecurrency', 'local_kreck'));
+        $mform->addElement('autocomplete', 'feecurrency', get_string('seed_feecurrency', 'local_kreck'),
+            pick::currencies(), ['multiple' => false, 'noselectionstring' => pick::DEFAULT_CURRENCY]);
         $mform->setType('feecurrency', PARAM_ALPHA);
-        $mform->setDefault('feecurrency', 'BWP');
+        $mform->setDefault('feecurrency', pick::DEFAULT_CURRENCY);
         $mform->addElement('select', 'feestatus', get_string('seed_feestatus', 'local_kreck'), [
             feeaccount::STATUS_CURRENT => get_string('feestatus_current', 'local_kreck'),
             feeaccount::STATUS_OVERDUE => get_string('feestatus_overdue', 'local_kreck'),
@@ -88,7 +93,10 @@ class seed_form extends \moodleform {
 
         // Topic struggle.
         $mform->addElement('header', 'topichdr', get_string('seed_topic', 'local_kreck'));
-        $mform->addElement('text', 'topic', get_string('seed_topicname', 'local_kreck'));
+        $topics = pick::distinct('local_kreck_topicstat', 'topic');
+        $topics += ['Fractions' => 'Fractions'];
+        $mform->addElement('autocomplete', 'topic', get_string('seed_topicname', 'local_kreck'), $topics,
+            ['multiple' => false, 'tags' => true, 'noselectionstring' => get_string('seed_picktopic', 'local_kreck')]);
         $mform->setType('topic', PARAM_TEXT);
         $mform->setDefault('topic', 'Fractions');
         $mform->addElement('text', 'topicattempts', get_string('seed_topicattempts', 'local_kreck'));
@@ -115,6 +123,9 @@ class seed_form extends \moodleform {
         if (!empty($data['username'])
                 && !$DB->record_exists('user', ['username' => $data['username'], 'deleted' => 0])) {
             $errors['username'] = get_string('seed_nouser', 'local_kreck');
+        }
+        if (pick::normalise_currency($data['feecurrency'] ?? '') === null) {
+            $errors['feecurrency'] = get_string('seed_badcurrency', 'local_kreck');
         }
         if ((int) $data['attendancepresent'] > (int) $data['attendancetotal']) {
             $errors['attendancepresent'] = get_string('seed_presenttoohigh', 'local_kreck');

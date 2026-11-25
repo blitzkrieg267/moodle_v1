@@ -74,6 +74,15 @@ $functions = [
         'capabilities' => 'local/kreck:manage',
         'services'    => ['local_kreck_service'],
     ],
+    'local_kreck_sync_events' => [
+        'classname'   => 'local_kreck\\external\\sync_events',
+        'methodname'  => 'execute',
+        'description' => 'Apply a batch of SMS calendar events (upsert/delete) to equivalent LMS calendar events, idempotently, keeping audience and labels.',
+        'type'        => 'write',
+        'ajax'        => false,
+        'capabilities' => 'local/kreck:manage',
+        'services'    => ['local_kreck_service'],
+    ],
     'local_kreck_sync_manifest' => [
         'classname'   => 'local_kreck\\external\\sync_manifest',
         'methodname'  => 'execute',
@@ -125,6 +134,7 @@ $services = [
             'local_kreck_ping',
             'local_kreck_set_webhook_secret',
             'local_kreck_get_student_marks',
+            'local_kreck_sync_events',
         ],
         'restrictedusers' => 1,
         'enabled'         => 0,

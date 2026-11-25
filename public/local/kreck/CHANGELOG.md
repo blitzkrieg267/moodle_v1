@@ -1,5 +1,21 @@
 # KRECK MicroLearn (local_kreck) Changelog
 
+## 2026112207 — SMS events mirrored 1:1 into the LMS calendar; searchable fields; BWP default
+
+- New web service `local_kreck_sync_events` (needs `local/kreck:manage`): the SMS pushes a batch of
+  events and the LMS creates, updates or removes the equivalent calendar events, idempotently
+  (stable `uuid = kreck:<source_id>[@c:<course>|@u:<username>]`, `component = local_kreck`, so the
+  calendar UI cannot edit or delete them). Audience maps onto Moodle's own model: site events (whole
+  school), course events (a class or every class of a year group) and personal events (a named list of
+  people, used for teacher-only lessons, parent copies, activities, duty and cover). Supports a dry run,
+  adopts events the older timetable export created (same class and time) instead of duplicating them,
+  anchors all-day events in the site timezone, skips (and reports) audiences that do not exist yet.
+- Seed form, onboarding form and the "Default currency" setting now use searchable `autocomplete`
+  fields (users, classes, topics, currencies, import batches). BWP is the default and first in every
+  currency list; a blank currency from the SMS is stored as BWP; an unknown currency is rejected.
+- Branded KRECK sign-in page is on by default after an upgrade (2026112206).
+- Schema: none. Upgrade step only refreshes the web-service descriptions.
+
 ## 2026111810 / v0.3.0 — Reverse SMS→LMS link import + SMS/LMS de-brand
 
 - Add "Import SMS links into KRECK LMS" (import_links.php): upload the SMS

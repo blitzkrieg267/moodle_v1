@@ -98,7 +98,8 @@ class ingest_fees extends external_api {
         $record = $existing ?: new feeaccount();
         $record->set('userid', $params['userid']);
         $record->set('balancecents', (int) round($params['balance'] * 100));
-        $record->set('currency', strtoupper($params['currency']));
+        // BWP policy: a blank currency from the SMS is stored as BWP, never an empty value.
+        $record->set('currency', strtoupper(trim((string) $params['currency'])) ?: 'BWP');
         $record->set('status', $params['status']);
         $record->set('mandateref', $params['mandateref']);
         $record->set('laststatement', $params['laststatement'] ?: time());

@@ -269,5 +269,11 @@ function xmldb_local_kreck_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026112206, 'local', 'kreck');
     }
 
+    if ($oldversion < 2026112207) {
+        // New web service local_kreck_sync_events (SMS events mirrored 1:1 into the LMS calendar).
+        external_update_descriptions('local_kreck');
+        upgrade_plugin_savepoint(true, 2026112207, 'local', 'kreck');
+    }
+
     return true;
 }
